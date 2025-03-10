@@ -3,25 +3,26 @@ import './App.css';
 import axios from 'axios';
 import AddMealForm from './components/AddMealForm';
 import MealItem from './components/MealItem';
+import { Meal, Day, MealType } from './types/meal';
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner'];
+const DAYS: Day[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const MEAL_TYPES: MealType[] = ['Breakfast', 'Lunch', 'Dinner'];
 
 function App() {
-  const [status, setStatus] = useState('Loading...');
-  const [meals, setMeals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [status, setStatus] = useState<string>('Loading...');
+  const [meals, setMeals] = useState<Meal[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
+  const [showAddForm, setShowAddForm] = useState<boolean>(false);
 
   // Check server status and fetch meals
   useEffect(() => {
-    const checkServerStatus = async () => {
+    const checkServerStatus = async (): Promise<void> => {
       try {
-        const response = await axios.get('/api/health');
+        const response = await axios.get<{ message: string }>('/api/health');
         setStatus('Server is running: ' + response.data.message);
         fetchMeals();
-      } catch (error) {
+      } catch (error: any) {
         setStatus('Error connecting to server: ' + error.message);
         setLoading(false);
         setError('Could not connect to server. Please try again later.');
@@ -32,12 +33,12 @@ function App() {
   }, []);
 
   // Fetch all meals from the API
-  const fetchMeals = async () => {
+  const fetchMeals = async (): Promise<void> => {
     try {
-      const response = await axios.get('/api/meals');
+      const response = await axios.get<Meal[]>('/api/meals');
       setMeals(response.data);
       setLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching meals:', error);
       setError('Failed to load meals. Please try again.');
       setLoading(false);
@@ -45,18 +46,18 @@ function App() {
   };
 
   // Handle adding a new meal
-  const handleMealAdded = (newMeal) => {
+  const handleMealAdded = (newMeal: Meal): void => {
     setMeals(prevMeals => [...prevMeals, newMeal]);
     setShowAddForm(false);
   };
 
   // Handle deleting a meal
-  const handleDeleteMeal = (mealId) => {
+  const handleDeleteMeal = (mealId: string): void => {
     setMeals(prevMeals => prevMeals.filter(meal => meal.id !== mealId));
   };
 
   // Get meals for a specific day and meal type
-  const getMealsForSlot = (day, mealType) => {
+  const getMealsForSlot = (day: Day, mealType: MealType): Meal[] => {
     return meals.filter(meal => meal.day === day && meal.mealType === mealType);
   };
 

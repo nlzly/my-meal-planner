@@ -1,8 +1,15 @@
 import React from 'react';
 import axios from 'axios';
+import { Meal } from '../types/meal';
 
-function MealItem({ meal, onDelete, onUpdate }) {
-  const handleDelete = async () => {
+interface MealItemProps {
+  meal: Meal;
+  onDelete: (id: string) => void;
+  onUpdate?: (meal: Meal) => void;
+}
+
+function MealItem({ meal, onDelete, onUpdate }: MealItemProps) {
+  const handleDelete = async (): Promise<void> => {
     if (window.confirm(`Are you sure you want to delete "${meal.name}"?`)) {
       try {
         await axios.delete(`/api/meals/${meal.id}`);

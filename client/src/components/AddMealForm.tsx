@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
+import { Meal, MealRequest, Day, MealType } from '../types/meal';
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner'];
+const DAYS: Day[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const MEAL_TYPES: MealType[] = ['Breakfast', 'Lunch', 'Dinner'];
 
-function AddMealForm({ onMealAdded }) {
-  const [formData, setFormData] = useState({
+interface AddMealFormProps {
+  onMealAdded: (meal: Meal) => void;
+}
+
+function AddMealForm({ onMealAdded }: AddMealFormProps) {
+  const [formData, setFormData] = useState<MealRequest>({
     name: '',
     description: '',
     day: DAYS[0],
     mealType: MEAL_TYPES[0]
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -22,13 +27,13 @@ function AddMealForm({ onMealAdded }) {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
     try {
-      const response = await axios.post('/api/meals', formData);
+      const response = await axios.post<Meal>('/api/meals', formData);
       setFormData({
         name: '',
         description: '',
@@ -38,7 +43,7 @@ function AddMealForm({ onMealAdded }) {
       if (onMealAdded) {
         onMealAdded(response.data);
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(err.response?.data || 'Failed to add meal. Please try again.');
       console.error('Error adding meal:', err);
     } finally {
@@ -70,7 +75,7 @@ function AddMealForm({ onMealAdded }) {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            rows="3"
+            rows={3}
           />
         </div>
 
