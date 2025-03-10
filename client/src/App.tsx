@@ -15,7 +15,7 @@ function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string>('');
 
   // Check authentication status on load
@@ -103,11 +103,11 @@ function App() {
         <h1>My Meal Planner</h1>
         <div className="header-right">
           <p className="server-status">{status}</p>
-          {isAuthenticated ? (
+          {/* {isAuthenticated ? (
             <button className="logout-button" onClick={handleLogout}>
               Logout
             </button>
-          ) : null}
+          ) : null} */}
         </div>
       </header>
       <main>
