@@ -5,6 +5,7 @@ import AddMealForm from './components/AddMealForm';
 import MealItem from './components/MealItem';
 import LoginButton from './components/LoginButton';
 import { Meal, Day, MealType } from './types/meal';
+import Modal from './components/Modal';
 
 const DAYS: Day[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const MEAL_TYPES: MealType[] = ['Breakfast', 'Lunch', 'Dinner'];
@@ -137,7 +138,7 @@ function App() {
             )}
 
             {error && <div className="error-message">{error}</div>}
-
+            <Modal children={<AddMealForm onMealAdded={handleMealAdded} />} text="Add Meal"/>
             {loading ? (
               <div className="loading">Loading meals...</div>
             ) : (
