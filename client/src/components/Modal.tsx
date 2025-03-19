@@ -3,30 +3,26 @@ import { createPortal } from "react-dom";
 import "./Modal.css"
 
 type ModalProps ={
-    children : ReactNode,
-    text : string
+    children : ReactNode
+    isOpen: boolean;
+    onClose: () => void;
 }
 
-export default function Modal({children, text}: ModalProps) {
-    const [showModal, setShowModal] = useState(false);
+export default function Modal({children, isOpen, onClose}: ModalProps) {
+    if(!isOpen) return null;
+
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget){
-            setShowModal(false);
+            onClose();
         }
     }
-    return (
-        <>
-            <button onClick={() => setShowModal(true)}>
-                {text}
-            </button>
-            {showModal && createPortal(
-                <div className="modal-overlay" onClick={handleOverlayClick}>
-                    <div className="modal-content">
-                        {children}
-                    </div>
-                </div>,
-                document.body
-            )}
-        </>
-    )
+    return createPortal(
+        <div className="modal-overlay" onClick={handleOverlayClick}>
+          <div className="modal-content">
+            {children}
+            <button onClick={onClose}>Close</button>
+          </div>
+        </div>,
+        document.body
+      );
 }

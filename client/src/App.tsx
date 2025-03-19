@@ -18,6 +18,7 @@ function App() {
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Check authentication status on load
   useEffect(() => {
@@ -138,7 +139,9 @@ function App() {
             )}
 
             {error && <div className="error-message">{error}</div>}
-            <Modal children={<AddMealForm onMealAdded={handleMealAdded} />} text="Add Meal"/>
+            <div>
+              <Modal children={<AddMealForm onMealAdded={handleMealAdded}/>} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            </div>
             {loading ? (
               <div className="loading">Loading meals...</div>
             ) : (
@@ -150,7 +153,7 @@ function App() {
                       {MEAL_TYPES.map(mealType => {
                         const mealsForSlot = getMealsForSlot(day, mealType);
                         return (
-                          <div key={mealType} className="meal-slot">
+                          <div key={mealType} className="meal-slot" onClick={()=> setIsModalOpen(true)}>
                             <h4>{mealType}</h4>
                             {mealsForSlot.length > 0 ? (
                               mealsForSlot.map(meal => (
