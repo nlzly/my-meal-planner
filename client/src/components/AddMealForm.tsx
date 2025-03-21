@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import * as localMealService from '../services/localMealService';
 import { Meal, MealRequest, Day, MealType } from '../types/meal';
 
@@ -9,9 +9,10 @@ interface AddMealFormProps {
   onMealAdded: (meal: Meal) => void;
   initialDay?: Day;
   initialMealType?: MealType;
+  mealToEdit?: Meal;
 }
 
-function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL_TYPES[0] }: AddMealFormProps) {
+function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL_TYPES[0], mealToEdit }: AddMealFormProps) {
   const [formData, setFormData] = useState<MealRequest>({
     name: '',
     description: '',
@@ -20,6 +21,17 @@ function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+
+  useEffect(() => {
+    if (mealToEdit) {
+      setFormData({
+        name: mealToEdit.name,
+        description: mealToEdit.description || '',
+        day: mealToEdit.day,
+        mealType: mealToEdit.mealType
+      });
+    }
+  }, [mealToEdit]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -35,19 +47,29 @@ function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL
     setError('');
 
     try {
-      const newMeal = localMealService.addMeal(formData);
-      setFormData({
-        name: '',
-        description: '',
-        day: formData.day,
-        mealType: formData.mealType
-      });
+      let meal: Meal;
+      if (mealToEdit) {
+        const success = localMealService.updateMeal({
+          ...mealToEdit,
+          ...formData
+        });
+        if (!success) {
+          throw new Error('Failed to update meal');
+        }
+        meal = {
+          ...mealToEdit,
+          ...formData
+        };
+      } else {
+        meal = localMealService.addMeal(formData);
+      }
+      
       if (onMealAdded) {
-        onMealAdded(newMeal);
+        onMealAdded(meal);
       }
     } catch (err: any) {
-      setError('Failed to add meal. Please try again.');
-      console.error('Error adding meal:', err);
+      setError(mealToEdit ? 'Failed to update meal. Please try again.' : 'Failed to add meal. Please try again.');
+      console.error('Error saving meal:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -55,7 +77,7 @@ function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL
 
   return (
     <div className="add-meal-form">
-      <h3>Add New Meal</h3>
+      <h3>{mealToEdit ? 'Edit Meal' : 'Add New Meal'}</h3>
       {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -116,7 +138,7 @@ function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL
           className="submit-button"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Adding...' : 'Add Meal'}
+          {isSubmitting ? (mealToEdit ? 'Updating...' : 'Adding...') : (mealToEdit ? 'Update Meal' : 'Add Meal')}
         </button>
       </form>
     </div>

@@ -22,6 +22,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<Day>(DAYS[0]);
   const [selectedMealType, setSelectedMealType] = useState<MealType>(MEAL_TYPES[0]);
+  const [mealToEdit, setMealToEdit] = useState<Meal | undefined>();
 
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
@@ -63,14 +64,27 @@ function App() {
   };
 
   const handleMealAdded = (newMeal: Meal): void => {
-    setMeals((prevMeals) => [...prevMeals, newMeal]);
+    setMeals((prevMeals) => {
+      if (mealToEdit) {
+        return prevMeals.map((meal) => meal.id === mealToEdit.id ? newMeal : meal);
+      }
+      return [...prevMeals, newMeal];
+    });
     setShowAddForm(false);
     setIsModalOpen(false);
+    setMealToEdit(undefined);
   };
 
   const handleDeleteMeal = (mealId: string): void => {
     localMealService.deleteMeal(mealId);
     setMeals((prevMeals) => prevMeals.filter((meal) => meal.id !== mealId));
+  };
+
+  const handleUpdateMeal = (updatedMeal: Meal): void => {
+    setMealToEdit(updatedMeal);
+    setIsModalOpen(true);
+    setSelectedDay(updatedMeal.day as Day);
+    setSelectedMealType(updatedMeal.mealType as MealType);
   };
 
   const getMealsForSlot = (day: Day, mealType: MealType): Meal[] => {
@@ -122,8 +136,16 @@ function App() {
             {error && <div className="error-message">{error}</div>}
 
             <div>
-              <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-                <AddMealForm onMealAdded={handleMealAdded} initialDay={selectedDay} initialMealType={selectedMealType} />
+              <Modal isOpen={isModalOpen} onClose={() => {
+                setIsModalOpen(false);
+                setMealToEdit(undefined);
+              }}>
+                <AddMealForm 
+                  onMealAdded={handleMealAdded} 
+                  initialDay={selectedDay} 
+                  initialMealType={selectedMealType}
+                  mealToEdit={mealToEdit}
+                />
               </Modal>
             </div>
 
@@ -135,6 +157,7 @@ function App() {
                 mealTypes={MEAL_TYPES}
                 getMealsForSlot={getMealsForSlot}
                 onDeleteMeal={handleDeleteMeal}
+                onUpdateMeal={handleUpdateMeal}
                 openModal={(day, mealType) => {
                   setSelectedDay(day);
                   setSelectedMealType(mealType);

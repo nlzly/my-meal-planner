@@ -7,6 +7,7 @@ type MealGridProps = {
   mealTypes: MealType[];
   getMealsForSlot: (day: Day, mealType: MealType) => Meal[];
   onDeleteMeal: (mealId: string) => void;
+  onUpdateMeal: (meal: Meal) => void;
   openModal: (day: Day, mealType: MealType) => void;
 };
 
@@ -15,6 +16,7 @@ const MealGrid: React.FC<MealGridProps> = ({
   mealTypes,
   getMealsForSlot,
   onDeleteMeal,
+  onUpdateMeal,
   openModal,
 }) => {
   return (
@@ -30,7 +32,12 @@ const MealGrid: React.FC<MealGridProps> = ({
                   <h4>{mealType}</h4>
                   {mealsForSlot.length > 0 ? (
                     mealsForSlot.map((meal) => (
-                      <MealItem key={meal.id} meal={meal} onDelete={onDeleteMeal} />
+                      <MealItem 
+                        key={meal.id} 
+                        meal={meal} 
+                        onDelete={onDeleteMeal}
+                        onUpdate={onUpdateMeal}
+                      />
                     ))
                   ) : (
                     <p className="no-meal">No meal planned</p>

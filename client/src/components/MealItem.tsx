@@ -21,11 +21,24 @@ function MealItem({ meal, onDelete, onUpdate }: MealItemProps) {
       }
   };
 
+  const handleEdit = (): void => {
+    if (onUpdate) {
+      onUpdate(meal);
+    }
+  };
+
   return (
     <div className="meal-item">
       <div className="meal-header">
         <h4>{meal.name}</h4>
         <div className="meal-actions">
+          <button 
+            className="edit-button" 
+            onClick={handleEdit}
+            aria-label="Edit meal"
+          >
+            ✎
+          </button>
           <button 
             className="delete-button" 
             onClick={handleDelete}
