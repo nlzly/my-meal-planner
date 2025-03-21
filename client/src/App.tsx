@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
+import * as localMealService from "./services/localMealService";
 import AddMealForm from "./components/AddMealForm";
 import MealGrid from "./components/MealGrid";
 import LoginButton from "./components/LoginButton";
@@ -33,25 +34,24 @@ function App() {
       try {
         const response = await axios.get<{ message: string }>("/api/health");
         setStatus("Server is running: " + response.data.message);
+      } catch (error: any) {
+        setStatus("Using local storage mode (no server connection)");
+      } finally {
         if (isAuthenticated) {
           fetchMeals();
         } else {
           setLoading(false);
         }
-      } catch (error: any) {
-        setStatus("Error connecting to server: " + error.message);
-        setLoading(false);
-        setError("Could not connect to server. Please try again later.");
       }
     };
 
     checkServerStatus();
   }, [isAuthenticated]);
 
-  const fetchMeals = async (): Promise<void> => {
+  const fetchMeals = (): void => {
     try {
-      const response = await axios.get<Meal[]>("/api/meals");
-      setMeals(response.data);
+      const localMeals = localMealService.getAllMeals();
+      setMeals(localMeals);
       setLoading(false);
     } catch (error: any) {
       console.error("Error fetching meals:", error);
@@ -66,6 +66,7 @@ function App() {
   };
 
   const handleDeleteMeal = (mealId: string): void => {
+    localMealService.deleteMeal(mealId);
     setMeals((prevMeals) => prevMeals.filter((meal) => meal.id !== mealId));
   };
 

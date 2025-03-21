@@ -1,5 +1,5 @@
 import React from 'react';
-import axios from 'axios';
+import * as localMealService from '../services/localMealService';
 import { Meal } from '../types/meal';
 
 interface MealItemProps {
@@ -9,11 +9,11 @@ interface MealItemProps {
 }
 
 function MealItem({ meal, onDelete, onUpdate }: MealItemProps) {
-  const handleDelete = async (): Promise<void> => {
+  const handleDelete = (): void => {
     if (window.confirm(`Are you sure you want to delete "${meal.name}"?`)) {
       try {
-        await axios.delete(`/api/meals/${meal.id}`);
-        if (onDelete) {
+        const success = localMealService.deleteMeal(meal.id);
+        if (success && onDelete) {
           onDelete(meal.id);
         }
       } catch (err) {

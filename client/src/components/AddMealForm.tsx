@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
-import axios from 'axios';
+import * as localMealService from '../services/localMealService';
 import { Meal, MealRequest, Day, MealType } from '../types/meal';
 
 const DAYS: Day[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -27,13 +27,13 @@ function AddMealForm({ onMealAdded }: AddMealFormProps) {
     }));
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
     try {
-      const response = await axios.post<Meal>('/api/meals', formData);
+      const newMeal = localMealService.addMeal(formData);
       setFormData({
         name: '',
         description: '',
@@ -41,10 +41,10 @@ function AddMealForm({ onMealAdded }: AddMealFormProps) {
         mealType: formData.mealType
       });
       if (onMealAdded) {
-        onMealAdded(response.data);
+        onMealAdded(newMeal);
       }
     } catch (err: any) {
-      setError(err.response?.data || 'Failed to add meal. Please try again.');
+      setError('Failed to add meal. Please try again.');
       console.error('Error adding meal:', err);
     } finally {
       setIsSubmitting(false);
