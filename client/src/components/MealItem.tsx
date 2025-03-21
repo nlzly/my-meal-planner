@@ -10,7 +10,6 @@ interface MealItemProps {
 
 function MealItem({ meal, onDelete, onUpdate }: MealItemProps) {
   const handleDelete = (): void => {
-    if (window.confirm(`Are you sure you want to delete "${meal.name}"?`)) {
       try {
         const success = localMealService.deleteMeal(meal.id);
         if (success && onDelete) {
@@ -20,7 +19,6 @@ function MealItem({ meal, onDelete, onUpdate }: MealItemProps) {
         console.error('Error deleting meal:', err);
         alert('Failed to delete meal. Please try again.');
       }
-    }
   };
 
   return (

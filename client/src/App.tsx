@@ -20,6 +20,8 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<Day>(DAYS[0]);
+  const [selectedMealType, setSelectedMealType] = useState<MealType>(MEAL_TYPES[0]);
 
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
@@ -63,6 +65,7 @@ function App() {
   const handleMealAdded = (newMeal: Meal): void => {
     setMeals((prevMeals) => [...prevMeals, newMeal]);
     setShowAddForm(false);
+    setIsModalOpen(false);
   };
 
   const handleDeleteMeal = (mealId: string): void => {
@@ -115,12 +118,12 @@ function App() {
               </button>
             </div>
 
-            {showAddForm && <AddMealForm onMealAdded={handleMealAdded} />}
+            {showAddForm && <AddMealForm onMealAdded={handleMealAdded} initialDay={DAYS[0]} initialMealType={MEAL_TYPES[0]} />}
             {error && <div className="error-message">{error}</div>}
 
             <div>
               <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-                <AddMealForm onMealAdded={handleMealAdded} />
+                <AddMealForm onMealAdded={handleMealAdded} initialDay={selectedDay} initialMealType={selectedMealType} />
               </Modal>
             </div>
 
@@ -132,7 +135,11 @@ function App() {
                 mealTypes={MEAL_TYPES}
                 getMealsForSlot={getMealsForSlot}
                 onDeleteMeal={handleDeleteMeal}
-                openModal={() => setIsModalOpen(true)}
+                openModal={(day, mealType) => {
+                  setSelectedDay(day);
+                  setSelectedMealType(mealType);
+                  setIsModalOpen(true);
+                }}
               />
             )}
           </section>

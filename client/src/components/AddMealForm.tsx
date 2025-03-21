@@ -7,14 +7,16 @@ const MEAL_TYPES: MealType[] = ['Breakfast', 'Lunch', 'Dinner'];
 
 interface AddMealFormProps {
   onMealAdded: (meal: Meal) => void;
+  initialDay?: Day;
+  initialMealType?: MealType;
 }
 
-function AddMealForm({ onMealAdded }: AddMealFormProps) {
+function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL_TYPES[0] }: AddMealFormProps) {
   const [formData, setFormData] = useState<MealRequest>({
     name: '',
     description: '',
-    day: DAYS[0],
-    mealType: MEAL_TYPES[0]
+    day: initialDay,
+    mealType: initialMealType
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
