@@ -87,6 +87,21 @@ function App() {
     setSelectedMealType(updatedMeal.mealType as MealType);
   };
 
+  const handleMoveMeal = (mealId: string, newDay: Day, newMealType: MealType): void => {
+    const meal = meals.find(m => m.id === mealId);
+    if (meal) {
+      const updatedMeal = {
+        ...meal,
+        day: newDay,
+        mealType: newMealType
+      };
+      localMealService.updateMeal(updatedMeal);
+      setMeals(prevMeals => 
+        prevMeals.map(m => m.id === mealId ? updatedMeal : m)
+      );
+    }
+  };
+
   const getMealsForSlot = (day: Day, mealType: MealType): Meal[] => {
     return meals.filter((meal) => meal.day === day && meal.mealType === mealType);
   };
@@ -158,6 +173,7 @@ function App() {
                 getMealsForSlot={getMealsForSlot}
                 onDeleteMeal={handleDeleteMeal}
                 onUpdateMeal={handleUpdateMeal}
+                onMoveMeal={handleMoveMeal}
                 openModal={(day, mealType) => {
                   setSelectedDay(day);
                   setSelectedMealType(mealType);

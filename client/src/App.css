@@ -114,6 +114,13 @@ main {
   background-color: #f9f9f9;
   border-radius: 5px;
   padding: 10px;
+  min-height: 100px;
+  transition: background-color 0.2s ease;
+}
+
+.meal-slot.drag-over {
+  background-color: #e3f2fd;
+  border: 2px dashed #2196F3;
 }
 
 .meal-slot h4 {
@@ -210,6 +217,22 @@ main {
   border-radius: 4px;
   padding: 10px;
   margin-bottom: 8px;
+  cursor: move;
+  user-select: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.meal-item:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.meal-item:active {
+  cursor: grabbing;
+}
+
+.meal-item.dragging {
+  opacity: 0.5;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .meal-header {
@@ -221,6 +244,28 @@ main {
 .meal-header h4 {
   margin: 0;
   font-size: 1rem;
+  cursor: text;
+}
+
+.meal-name-form {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.meal-name-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #2196F3;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: white;
+}
+
+.meal-name-input:focus {
+  outline: none;
+  border-color: #1976D2;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
 }
 
 .meal-actions {

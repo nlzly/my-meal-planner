@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import MealItem from "./MealItem";
 import { Meal, Day, MealType } from "../types/meal";
 
@@ -9,6 +9,7 @@ type MealGridProps = {
   onDeleteMeal: (mealId: string) => void;
   onUpdateMeal: (meal: Meal) => void;
   openModal: (day: Day, mealType: MealType) => void;
+  onMoveMeal: (mealId: string, newDay: Day, newMealType: MealType) => void;
 };
 
 const MealGrid: React.FC<MealGridProps> = ({
@@ -18,7 +19,31 @@ const MealGrid: React.FC<MealGridProps> = ({
   onDeleteMeal,
   onUpdateMeal,
   openModal,
+  onMoveMeal,
 }) => {
+  const [draggedMeal, setDraggedMeal] = useState<Meal | null>(null);
+
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, meal: Meal) => {
+    setDraggedMeal(meal);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragEnd = () => {
+    setDraggedMeal(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, day: Day, mealType: MealType) => {
+    e.preventDefault();
+    if (draggedMeal && (draggedMeal.day !== day || draggedMeal.mealType !== mealType)) {
+      onMoveMeal(draggedMeal.id, day, mealType);
+    }
+  };
+
   return (
     <div className="meal-days">
       {days.map((day) => (
@@ -28,7 +53,13 @@ const MealGrid: React.FC<MealGridProps> = ({
             {mealTypes.map((mealType) => {
               const mealsForSlot = getMealsForSlot(day, mealType);
               return (
-                <div key={mealType} className="meal-slot" onClick={mealsForSlot.length < 1 ? () => openModal(day, mealType) : undefined}>
+                <div 
+                  key={mealType} 
+                  className="meal-slot" 
+                  onClick={mealsForSlot.length < 1 ? () => openModal(day, mealType) : undefined}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, day, mealType)}
+                >
                   <h4>{mealType}</h4>
                   {mealsForSlot.length > 0 ? (
                     mealsForSlot.map((meal) => (
@@ -37,6 +68,8 @@ const MealGrid: React.FC<MealGridProps> = ({
                         meal={meal} 
                         onDelete={onDeleteMeal}
                         onUpdate={onUpdateMeal}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
                       />
                     ))
                   ) : (
