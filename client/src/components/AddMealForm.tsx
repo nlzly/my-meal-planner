@@ -112,7 +112,6 @@ function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL
             name="chef"
             value={formData.chef}
             onChange={handleChange}
-            required
           />
         </div>
         <div className="form-row">
