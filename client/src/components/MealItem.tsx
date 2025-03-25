@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import * as localMealService from '../services/localMealService';
 import { Meal } from '../types/meal';
 
@@ -8,10 +8,11 @@ interface MealItemProps {
   onUpdate?: (meal: Meal) => void;
   onDragStart?: (e: React.DragEvent<HTMLDivElement>, meal: Meal) => void;
   onDragEnd?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
-function MealItem({ meal, onDelete, onUpdate, onDragStart, onDragEnd }: MealItemProps) {
-
+function MealItem({ meal, onDelete, onUpdate, onDragStart, onDragEnd, onMouseEnter, onMouseLeave }: MealItemProps) {
   const handleDelete = (): void => {
       try {
         const success = localMealService.deleteMeal(meal.id);
@@ -36,6 +37,8 @@ function MealItem({ meal, onDelete, onUpdate, onDragStart, onDragEnd }: MealItem
       draggable
       onDragStart={(e) => onDragStart?.(e, meal)}
       onDragEnd={onDragEnd}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       <div className="meal-header">
         <h4>{meal.name}</h4>

@@ -230,7 +230,12 @@ main {
   margin-bottom: 8px;
   cursor: move;
   user-select: none;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.meal-item.selected {
+  border-color: #2196F3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
 }
 
 .meal-item:hover {
@@ -320,6 +325,35 @@ main {
 
 .edit-button:hover {
   background-color: #1976D2;
+}
+
+.copy-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.copy-button:hover {
+  background-color: #45a049;
+}
+
+.meal-slot.paste-target {
+  background-color: #e8f5e9;
+  border: 2px dashed #4CAF50;
+  cursor: pointer;
+}
+
+.meal-slot.paste-target:hover {
+  background-color: #c8e6c9;
 }
 
 .meal-description {

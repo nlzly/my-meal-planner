@@ -102,6 +102,19 @@ function App() {
     }
   };
 
+  const handleCopyMeal = (meal: Meal, newDay: Day, newMealType: MealType): void => {
+    const newMeal = {
+      ...meal,
+      id: crypto.randomUUID(), // Generate a new ID for the copy
+      day: newDay,
+      mealType: newMealType,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    localMealService.addMeal(newMeal);
+    setMeals(prevMeals => [...prevMeals, newMeal]);
+  };
+
   const getMealsForSlot = (day: Day, mealType: MealType): Meal[] => {
     return meals.filter((meal) => meal.day === day && meal.mealType === mealType);
   };
@@ -174,6 +187,7 @@ function App() {
                 onDeleteMeal={handleDeleteMeal}
                 onUpdateMeal={handleUpdateMeal}
                 onMoveMeal={handleMoveMeal}
+                onCopyMeal={handleCopyMeal}
                 openModal={(day, mealType) => {
                   setSelectedDay(day);
                   setSelectedMealType(mealType);
