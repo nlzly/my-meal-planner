@@ -6,6 +6,7 @@ export interface Meal {
   mealType: string; // 'Breakfast', 'Lunch', 'Dinner'
   createdAt: string;
   updatedAt: string;
+  chef: string;
 }
 
 export interface MealRequest {
@@ -13,6 +14,7 @@ export interface MealRequest {
   description: string;
   day: string;
   mealType: string;
+  chef: string;
 }
 
 export type Day = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';

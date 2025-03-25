@@ -59,6 +59,9 @@ function MealItem({ meal, onDelete, onUpdate, onDragStart, onDragEnd }: MealItem
       {meal.description && (
         <p className="meal-description">{meal.description}</p>
       )}
+      {meal.chef && (
+        <p className="meal-chef">Chef: {meal.chef}</p>
+      )}
     </div>
   );
 }

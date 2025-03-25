@@ -17,7 +17,8 @@ function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL
     name: '',
     description: '',
     day: initialDay,
-    mealType: initialMealType
+    mealType: initialMealType,
+    chef: '',
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -28,7 +29,8 @@ function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL
         name: mealToEdit.name,
         description: mealToEdit.description || '',
         day: mealToEdit.day,
-        mealType: mealToEdit.mealType
+        mealType: mealToEdit.mealType,
+        chef: mealToEdit.chef,
       });
     }
   }, [mealToEdit]);
@@ -102,7 +104,17 @@ function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL
             rows={3}
           />
         </div>
-
+        <div className="form-group">
+          <label htmlFor="chef">Chef:</label>
+          <input
+            type="text"
+            id="chef"
+            name="chef"
+            value={formData.chef}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="day">Day:</label>

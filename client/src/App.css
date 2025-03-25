@@ -156,14 +156,25 @@ main {
   font-weight: bold;
 }
 
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+  max-height: 720px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
 .form-group input,
-.form-group textarea,
 .form-group select {
   width: 100%;
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+  
 }
 
 .form-row {
@@ -315,4 +326,11 @@ main {
   margin: 5px 0 0 0;
   font-size: 0.9rem;
   color: #666;
+  overflow-wrap: break-word;
+}
+
+.meal-chef {
+  margin: 5px 0 0 0;
+  font-size: 0.9rem;
+  color: #aa2e2e;
 }
