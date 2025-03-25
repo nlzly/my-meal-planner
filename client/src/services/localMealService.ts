@@ -1,4 +1,4 @@
-import { Meal, MealRequest } from '../types/meal';
+import { Meal, MealRequest, Day, MealType } from '../types/meal';
 import { v4 as uuidv4 } from 'uuid';
 
 // Local storage key
@@ -70,4 +70,20 @@ export const updateMeal = (updatedMeal: Meal): boolean => {
   }
   
   return false;
+};
+
+export const clearMealsForWeek = (weekStartDate: Date): boolean => {
+  try {
+    const meals = loadMeals();
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const currentDayIndex = weekStartDate.getDay();
+    const weekDays = [...days.slice(currentDayIndex), ...days.slice(0, currentDayIndex)];
+
+    const filteredMeals = meals.filter(meal => !weekDays.includes(meal.day));
+    saveMeals(filteredMeals);
+    return true;
+  } catch (err) {
+    console.error('Error clearing meals for week:', err);
+    return false;
+  }
 };

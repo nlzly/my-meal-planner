@@ -20,7 +20,6 @@ export default function Modal({children, isOpen, onClose}: ModalProps) {
         <div className="modal-overlay" onClick={handleOverlayClick}>
           <div className="modal-content">
             {children}
-            <button onClick={onClose}>Close</button>
           </div>
         </div>,
         document.body

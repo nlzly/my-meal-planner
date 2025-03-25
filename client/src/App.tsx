@@ -6,6 +6,7 @@ import AddMealForm from "./components/AddMealForm";
 import MealGrid from "./components/MealGrid";
 import LoginButton from "./components/LoginButton";
 import Modal from "./components/Modal";
+import ConfirmModal from "./components/ConfirmModal";
 import { Meal, Day, MealType } from "./types/meal";
 
 const DAYS: Day[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -23,6 +24,9 @@ function App() {
   const [selectedDay, setSelectedDay] = useState<Day>(DAYS[0]);
   const [selectedMealType, setSelectedMealType] = useState<MealType>(MEAL_TYPES[0]);
   const [mealToEdit, setMealToEdit] = useState<Meal | undefined>();
+  const [showAddMealModal, setShowAddMealModal] = useState(false);
+  const [weekStartDate, setWeekStartDate] = useState(new Date());
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
@@ -136,6 +140,28 @@ function App() {
     setMeals([]);
   };
 
+  const handleAddMeal = () => {
+    setShowAddMealModal(true);
+  };
+
+  const handleClearMealPlan = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmClear = () => {
+    try {
+      const success = localMealService.clearMealsForWeek(weekStartDate);
+      if (success) {
+        setMeals([]);
+      }
+    } catch (err) {
+      console.error('Error clearing meals:', err);
+      alert('Failed to clear meals. Please try again.');
+    } finally {
+      setShowConfirmModal(false);
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -155,9 +181,11 @@ function App() {
           <section className="meal-planner-container">
             <div className="meal-planner-header">
               <h2>Weekly Meal Plan</h2>
-              <button className="add-meal-button" onClick={() => setShowAddForm(!showAddForm)}>
-                {showAddForm ? "Cancel" : "Add Meal"}
-              </button>
+              <div className="header-buttons">
+                <button className="clear-button" onClick={handleClearMealPlan}>
+                  Clear Meal Plan
+                </button>
+              </div>
             </div>
 
             {showAddForm && <AddMealForm onMealAdded={handleMealAdded} initialDay={DAYS[0]} initialMealType={MEAL_TYPES[0]} />}
@@ -175,6 +203,14 @@ function App() {
                   mealToEdit={mealToEdit}
                 />
               </Modal>
+
+              <ConfirmModal
+                isOpen={showConfirmModal}
+                onClose={() => setShowConfirmModal(false)}
+                onConfirm={handleConfirmClear}
+                title="Clear Meal Plan"
+                message="Are you sure you want to clear all meals for this week? This action cannot be undone."
+              />
             </div>
 
             {loading ? (
