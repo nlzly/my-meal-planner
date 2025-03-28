@@ -121,7 +121,7 @@ const MealGrid: React.FC<MealGridProps> = ({
                     ))
                   ) : (
                     <p className="no-meal">
-                      {isHovered && canPaste ? 'Press Ctrl+V to paste' : 'No meal planned, click to add.'}
+                      {isHovered && canPaste ? 'Press Ctrl+V to paste' : 'No meal planned'}
                     </p>
                   )}
                 </div>
@@ -134,4 +134,4 @@ const MealGrid: React.FC<MealGridProps> = ({
   );
 };
 
-export default MealGrid;
+export default MealGrid; 

@@ -1,27 +1,21 @@
-import { ReactNode, useState } from "react";
-import { createPortal } from "react-dom";
-import "./Modal.css"
+import React from 'react';
 
-type ModalProps ={
-    children : ReactNode
-    isOpen: boolean;
-    onClose: () => void;
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
 }
 
-export default function Modal({children, isOpen, onClose}: ModalProps) {
-    if(!isOpen) return null;
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
 
-    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (e.target === e.currentTarget){
-            onClose();
-        }
-    }
-    return createPortal(
-        <div className="modal-overlay" onClick={handleOverlayClick}>
-          <div className="modal-content">
-            {children}
-          </div>
-        </div>,
-        document.body
-      );
-}
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+export default Modal; 

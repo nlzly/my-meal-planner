@@ -69,4 +69,4 @@ function MealItem({ meal, onDelete, onUpdate, onDragStart, onDragEnd, onMouseEnt
   );
 }
 
-export default MealItem;
+export default MealItem; 
