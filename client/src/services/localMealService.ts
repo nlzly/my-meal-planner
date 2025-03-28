@@ -1,4 +1,4 @@
-import { Meal, MealRequest } from '../types/meal';
+import { Meal } from '../types/meal';
 import { v4 as uuidv4 } from 'uuid';
 
 const MEALS_KEY = 'meals';
