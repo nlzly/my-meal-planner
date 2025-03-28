@@ -1,41 +1,59 @@
-import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Meal, Day, MealType, MealRequest } from '../types/meal';
 import * as localMealService from '../services/localMealService';
-import { Meal, MealRequest, Day, MealType } from '../types/meal';
-
-const DAYS: Day[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const MEAL_TYPES: MealType[] = ['Breakfast', 'Lunch', 'Dinner'];
 
 interface AddMealFormProps {
   onMealAdded: (meal: Meal) => void;
-  initialDay?: Day;
-  initialMealType?: MealType;
+  initialDay: Day;
+  initialMealType: MealType;
   mealToEdit?: Meal;
 }
 
-function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL_TYPES[0], mealToEdit }: AddMealFormProps) {
+const AddMealForm: React.FC<AddMealFormProps> = ({
+  onMealAdded,
+  initialDay,
+  initialMealType,
+  mealToEdit
+}) => {
   const [formData, setFormData] = useState<MealRequest>({
     name: '',
     description: '',
-    day: initialDay,
-    mealType: initialMealType,
     chef: '',
+    day: initialDay,
+    mealType: initialMealType
   });
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     if (mealToEdit) {
       setFormData({
         name: mealToEdit.name,
         description: mealToEdit.description || '',
+        chef: mealToEdit.chef || '',
         day: mealToEdit.day,
-        mealType: mealToEdit.mealType,
-        chef: mealToEdit.chef,
+        mealType: mealToEdit.mealType
       });
     }
   }, [mealToEdit]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const meal: Meal = {
+      ...formData,
+      id: mealToEdit?.id || crypto.randomUUID(),
+      createdAt: mealToEdit?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    if (mealToEdit) {
+      localMealService.updateMeal(meal);
+    } else {
+      localMealService.addMeal(meal);
+    }
+
+    onMealAdded(meal);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -43,117 +61,82 @@ function AddMealForm({ onMealAdded, initialDay = DAYS[0], initialMealType = MEAL
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError('');
-
-    try {
-      let meal: Meal;
-      if (mealToEdit) {
-        const success = localMealService.updateMeal({
-          ...mealToEdit,
-          ...formData
-        });
-        if (!success) {
-          throw new Error('Failed to update meal');
-        }
-        meal = {
-          ...mealToEdit,
-          ...formData
-        };
-      } else {
-        meal = localMealService.addMeal(formData);
-      }
-      
-      if (onMealAdded) {
-        onMealAdded(meal);
-      }
-    } catch (err: any) {
-      setError(mealToEdit ? 'Failed to update meal. Please try again.' : 'Failed to add meal. Please try again.');
-      console.error('Error saving meal:', err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
-    <div className="add-meal-form">
-      <h3>{mealToEdit ? 'Edit Meal' : 'Add New Meal'}</h3>
-      {error && <div className="error-message">{error}</div>}
-      <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="add-meal-form">
+      <div className="form-group">
+        <label htmlFor="name">Meal Name</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="description">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="chef">Chef</label>
+        <input
+          type="text"
+          id="chef"
+          name="chef"
+          value={formData.chef}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div className="form-row">
         <div className="form-group">
-          <label htmlFor="name">Meal Name:</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
+          <label htmlFor="day">Day</label>
+          <select
+            id="day"
+            name="day"
+            value={formData.day}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+          </select>
         </div>
 
         <div className="form-group">
-          <label htmlFor="description">Description:</label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
+          <label htmlFor="mealType">Meal Type</label>
+          <select
+            id="mealType"
+            name="mealType"
+            value={formData.mealType}
             onChange={handleChange}
-            rows={3}
-          />
+            required
+          >
+            <option value="Breakfast">Breakfast</option>
+            <option value="Lunch">Lunch</option>
+            <option value="Dinner">Dinner</option>
+          </select>
         </div>
-        <div className="form-group">
-          <label htmlFor="chef">Chef:</label>
-          <input
-            type="text"
-            id="chef"
-            name="chef"
-            value={formData.chef}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="day">Day:</label>
-            <select
-              id="day"
-              name="day"
-              value={formData.day}
-              onChange={handleChange}
-            >
-              {DAYS.map(day => (
-                <option key={day} value={day}>{day}</option>
-              ))}
-            </select>
-          </div>
+      </div>
 
-          <div className="form-group">
-            <label htmlFor="mealType">Meal Type:</label>
-            <select
-              id="mealType"
-              name="mealType"
-              value={formData.mealType}
-              onChange={handleChange}
-            >
-              {MEAL_TYPES.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <button 
-          type="submit" 
-          className="submit-button"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (mealToEdit ? 'Updating...' : 'Adding...') : (mealToEdit ? 'Update Meal' : 'Add Meal')}
-        </button>
-      </form>
-    </div>
+      <button type="submit" className="submit-button">
+        {mealToEdit ? 'Update Meal' : 'Add Meal'}
+      </button>
+    </form>
   );
-}
+};
 
-export default AddMealForm;
+export default AddMealForm; 

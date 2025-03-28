@@ -1,94 +1,115 @@
 # My Meal Planner
 
-A simple meal planning application with Google OAuth authentication.
+A modern web application for planning your weekly meals, built with React, TypeScript, and Vite.
 
 ## Features
 
-- Google OAuth login
-- Weekly meal planning
-- Add, view, and delete meals
-- Protected API endpoints
+- 🗓️ Weekly meal planning grid
+- 🍳 Add, edit, and delete meals
+- 👨‍🍳 Assign chefs to meals
+- 📝 Add descriptions to meals
+- 🎯 Drag and drop meals between slots
+- ⌨️ Keyboard shortcuts for copy/paste
+- 💾 Local storage persistence
+- 🔒 Authentication support (mock implementation)
 
-## Setup
+## Tech Stack
+
+- React 18
+- TypeScript
+- Vite
+- CSS Modules
+- Local Storage API
+
+## Getting Started
 
 ### Prerequisites
 
-- Node.js and npm for the client
-- Go for the server
-- Google OAuth credentials
+- Node.js (v14 or higher)
+- npm or yarn
 
-### Getting Google OAuth Credentials
+### Installation
 
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Navigate to "APIs & Services" > "Credentials"
-4. Click "Create Credentials" > "OAuth client ID"
-5. Select "Web application" as the application type
-6. Add authorized JavaScript origins:
-   - For development: `http://localhost:3000`
-   - For production: Your domain
-7. Add authorized redirect URIs:
-   - For development: `http://localhost:8080/auth/google/callback`
-   - For production: Your domain + `/auth/google/callback`
-8. Click "Create" and note your Client ID and Client Secret
-
-### Environment Variables
-
-#### Client
-
-Create a `.env` file in the `client` directory with:
-
-```
-REACT_APP_GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID_HERE
-```
-
-#### Server
-
-Set the following environment variables:
-
-```
-GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID_HERE
-GOOGLE_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET_HERE
-OAUTH_REDIRECT_URL=http://localhost:8080/auth/google/callback
-JWT_SECRET=your-jwt-secret-key
-```
-
-## Running the Application
-
-### Server
-
+1. Clone the repository:
 ```bash
-cd server
-go mod tidy
-go run main.go
+git clone https://github.com/yourusername/my-meal-planner.git
+cd my-meal-planner
 ```
 
-The server will start on port 8080.
-
-### Client
-
+2. Install dependencies:
 ```bash
-cd client
+cd client-vite
 npm install
-npm start
 ```
 
-The client will start on port 3000.
+3. Start the development server:
+```bash
+npm run dev
+```
 
-## Usage
+The application will be available at `http://localhost:3000`.
 
-1. Open your browser and navigate to `http://localhost:3000`
-2. Click the Google Sign-In button to authenticate
-3. Once authenticated, you can view, add, and delete meals in your meal planner
-4. Your authentication token will be stored in localStorage and used for API requests
+### Building for Production
 
-## API Endpoints
+To create a production build:
 
-- `GET /api/health` - Health check
-- `GET /api/meals` - Get all meals (protected)
-- `POST /api/meals` - Create a new meal (protected)
-- `GET /api/meals/:id` - Get a meal by ID (protected)
-- `PUT /api/meals/:id` - Update a meal (protected)
-- `DELETE /api/meals/:id` - Delete a meal (protected)
-- `GET /auth/google/login` - Initiate Google OAuth flow
-- `POST /auth/google/callback` - Process Google OAuth callback
+```bash
+npm run build
+```
+
+The built files will be in the `dist` directory.
+
+To preview the production build:
+
+```bash
+npm run preview
+```
+
+## Project Structure
+
+```
+my-meal-planner/
+├── client-vite/
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   ├── services/       # API and local storage services
+│   │   ├── types/         # TypeScript type definitions
+│   │   ├── App.tsx        # Main application component
+│   │   ├── main.tsx       # Application entry point
+│   │   ├── App.css        # Global styles
+│   │   └── index.css      # Base styles
+│   ├── public/            # Static assets
+│   ├── index.html         # HTML template
+│   ├── package.json       # Dependencies and scripts
+│   ├── tsconfig.json      # TypeScript configuration
+│   ├── vite.config.ts     # Vite configuration
+│   └── README.md          # Project documentation
+└── README.md              # Root README
+```
+
+## Development
+
+### Available Scripts
+
+- `npm run dev` - Start the development server
+- `npm run build` - Create a production build
+- `npm run preview` - Preview the production build
+- `npm run lint` - Run ESLint
+
+### Code Style
+
+The project uses ESLint for code linting and TypeScript for type checking. The configuration can be found in:
+- `.eslintrc.cjs`
+- `tsconfig.json`
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

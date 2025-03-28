@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import "./App.css";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import * as localMealService from "./services/localMealService";
 import AddMealForm from "./components/AddMealForm";
@@ -8,6 +7,7 @@ import LoginButton from "./components/LoginButton";
 import Modal from "./components/Modal";
 import ConfirmModal from "./components/ConfirmModal";
 import { Meal, Day, MealType } from "./types/meal";
+import "./App.css";
 
 const DAYS: Day[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const MEAL_TYPES: MealType[] = ["Breakfast", "Lunch", "Dinner"];
@@ -184,6 +184,9 @@ function App() {
               <div className="header-buttons">
                 <button className="clear-button" onClick={handleClearMealPlan}>
                   Clear Meal Plan
+                </button>
+                <button className="add-button" onClick={handleAddMeal}>
+                  Add Meal
                 </button>
               </div>
             </div>
