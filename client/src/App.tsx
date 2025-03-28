@@ -25,7 +25,7 @@ function App() {
   const [selectedMealType, setSelectedMealType] = useState<MealType>(MEAL_TYPES[0]);
   const [mealToEdit, setMealToEdit] = useState<Meal | undefined>();
   const [showAddMealModal, setShowAddMealModal] = useState(false);
-  const [weekStartDate, setWeekStartDate] = useState(new Date());
+  const [weekStartDate] = useState(new Date());
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
@@ -168,6 +168,11 @@ function App() {
         <h1>My Meal Planner</h1>
         <div className="header-right">
           <p className="server-status">{status}</p>
+          {isAuthenticated && (
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          )}
         </div>
       </header>
       <main>

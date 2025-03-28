@@ -66,17 +66,18 @@
 }
 
 .logout-button {
-  background-color: #f44336;
+  background-color: #dc3545;
   color: white;
   border: none;
-  padding: 8px 12px;
+  padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
+  margin-left: 16px;
+  font-size: 14px;
 }
 
 .logout-button:hover {
-  background-color: #d32f2f;
+  background-color: #c82333;
 }
 
 /* Login Container Styles */
