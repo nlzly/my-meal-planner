@@ -24,7 +24,6 @@ function App() {
   const [selectedDay, setSelectedDay] = useState<Day>(DAYS[0]);
   const [selectedMealType, setSelectedMealType] = useState<MealType>(MEAL_TYPES[0]);
   const [mealToEdit, setMealToEdit] = useState<Meal | undefined>();
-  const [showAddMealModal, setShowAddMealModal] = useState(false);
   const [weekStartDate] = useState(new Date());
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -122,8 +121,8 @@ function App() {
   const getMealsForSlot = (day: Day, mealType: MealType): Meal[] => {
     return meals.filter((meal) => meal.day === day && meal.mealType === mealType);
   };
-
-  const handleLoginSuccess = (token: string): void => {
+  //const handleLoginSuccess = (token: string)
+  const handleLoginSuccess = (): void => {
     setIsAuthenticated(true);
     setAuthError("");
     fetchMeals();
@@ -141,7 +140,7 @@ function App() {
   };
 
   const handleAddMeal = () => {
-    setShowAddMealModal(true);
+    setShowAddForm(true);
   };
 
   const handleClearMealPlan = () => {
