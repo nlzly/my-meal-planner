@@ -1,25 +1,17 @@
 import React from 'react';
 
-interface LoginButtonProps {
-  onLoginSuccess: (token: string) => void;
-  onLoginFailure: (error: string) => void;
-}
-
-const LoginButton: React.FC<LoginButtonProps> = ({ onLoginSuccess, onLoginFailure }) => {
-  const handleLogin = async () => {
-    try {
-      // For now, we'll just simulate a successful login
-      const mockToken = 'mock-auth-token';
-      localStorage.setItem('auth_token', mockToken);
-      onLoginSuccess(mockToken);
-    } catch (error) {
-      onLoginFailure('Failed to login. Please try again.');
-    }
+const LoginButton: React.FC = () => {
+  const handleLogin = () => {
+    // Redirect to the server's OAuth login endpoint
+    window.location.href = '/auth/google/login';
   };
 
   return (
-    <button className="login-button" onClick={handleLogin}>
-      Login
+    <button 
+      className="login-button"
+      onClick={handleLogin}
+    >
+      Sign in with Google
     </button>
   );
 };

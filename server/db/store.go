@@ -2,137 +2,148 @@ package db
 
 import (
 	"errors"
-	"os"
-	"strconv"
 	"sync"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 
 	"my-meal-planner/models"
 )
 
 var (
-	ErrMealNotFound = errors.New("meal not found")
-	ErrUserNotFound = errors.New("user not found")
-	ErrInvalidToken = errors.New("invalid token")
+	ErrMealNotFound     = errors.New("meal not found")
+	ErrMealPlanNotFound = errors.New("meal plan not found")
+	ErrUserNotFound     = errors.New("user not found")
+	ErrInvalidToken     = errors.New("invalid token")
+	ErrAccessDenied     = errors.New("access denied")
 )
 
-// Store is an in-memory database for meals and users
-type Store struct {
-	meals           map[string]models.Meal
-	users           map[string]models.User
-	usersByGoogleID map[string]string // Maps Google IDs to user IDs
-	mutex           sync.RWMutex
-	nextMealID      int
-	nextUserID      int
-	jwtSecret       []byte
-	oauthConfig     *oauth2.Config
+// Store defines the interface for data storage operations
+type Store interface {
+	// User operations
+	CreateOrUpdateUser(user *models.User) error
+	GetUserByID(id string) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
+
+	// Token operations
+	GenerateToken(userID string) (string, error)
+	ValidateToken(tokenString string) (*TokenClaims, error)
+
+	// OAuth operations
+	GetOAuthConfig() *oauth2.Config
+
+	// Meal plan operations
+	CreateMealPlan(plan *models.MealPlan) error
+	GetMealPlan(id string) (*models.MealPlan, error)
+	UpdateMealPlan(plan *models.MealPlan) error
+	DeleteMealPlan(id string) error
+	ListMealPlansByUser(userID string) []*models.MealPlan
+	CreateMealPlanAccess(access *models.MealPlanAccess) error
+	CheckMealPlanAccess(userID, mealPlanID string) (bool, error)
+	CheckMealPlanOwnership(userID, mealPlanID string) (bool, error)
+
+	// Share link operations
+	CreateShareLink(link *models.ShareLink) error
+	GetShareLink(id string) (*models.ShareLink, error)
+	DeleteShareLink(id string) error
+
+	// Meal operations
+	CreateMeal(meal *models.Meal) error
+	GetMeal(id string) (*models.Meal, error)
+	UpdateMeal(meal *models.Meal) error
+	DeleteMeal(id string) error
+	ListMealsByPlan(mealPlanID string) []*models.Meal
 }
 
-// NewStore creates a new in-memory store
-func NewStore() *Store {
-	// Get Google OAuth credentials from environment
-	clientID := os.Getenv("GOOGLE_CLIENT_ID")
-	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
-	redirectURL := os.Getenv("OAUTH_REDIRECT_URL")
-	if redirectURL == "" {
-		redirectURL = "http://localhost:8080/auth/google/callback"
-	}
+// TokenClaims represents the claims in a JWT token
+type TokenClaims struct {
+	UserID string `json:"userId"`
+	jwt.RegisteredClaims
+}
 
-	// JWT secret
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		jwtSecret = "my-meal-planner-secret-key" // Default secret for development
-	}
+// MemoryStore implements the Store interface using in-memory storage
+type MemoryStore struct {
+	users          map[string]*models.User
+	meals          map[string]*models.Meal
+	mealPlans      map[string]*models.MealPlan
+	mealPlanAccess map[string]*models.MealPlanAccess
+	shareLinks     map[string]*models.ShareLink
+	mutex          sync.RWMutex
+	oauthConfig    *oauth2.Config
+	jwtSecret      []byte
+}
 
-	// Create OAuth config
-	oauthConfig := &oauth2.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		RedirectURL:  redirectURL,
-		Scopes: []string{
-			"https://www.googleapis.com/auth/userinfo.email",
-			"https://www.googleapis.com/auth/userinfo.profile",
-		},
-		Endpoint: google.Endpoint,
+// NewMemoryStore creates a new in-memory store
+func NewMemoryStore(oauthConfig *oauth2.Config, jwtSecret []byte) *MemoryStore {
+	return &MemoryStore{
+		users:          make(map[string]*models.User),
+		meals:          make(map[string]*models.Meal),
+		mealPlans:      make(map[string]*models.MealPlan),
+		mealPlanAccess: make(map[string]*models.MealPlanAccess),
+		shareLinks:     make(map[string]*models.ShareLink),
+		oauthConfig:    oauthConfig,
+		jwtSecret:      jwtSecret,
 	}
+}
 
-	return &Store{
-		meals:           make(map[string]models.Meal),
-		users:           make(map[string]models.User),
-		usersByGoogleID: make(map[string]string),
-		nextMealID:      1,
-		nextUserID:      1,
-		jwtSecret:       []byte(jwtSecret),
-		oauthConfig:     oauthConfig,
-	}
+// generateID generates a unique ID
+func (s *MemoryStore) generateID() string {
+	return time.Now().Format("20060102150405") + "-" + uuid.New().String()
 }
 
 // GetOAuthConfig returns the OAuth2 config
-func (s *Store) GetOAuthConfig() *oauth2.Config {
+func (s *MemoryStore) GetOAuthConfig() *oauth2.Config {
 	return s.oauthConfig
 }
 
 // CreateMeal adds a new meal to the store
-func (s *Store) CreateMeal(req models.MealRequest) models.Meal {
+func (s *MemoryStore) CreateMeal(meal *models.Meal) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	id := s.generateID()
-	now := time.Now()
-
-	meal := models.Meal{
-		ID:          id,
-		Name:        req.Name,
-		Description: req.Description,
-		Day:         req.Day,
-		MealType:    req.MealType,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+	if meal.ID == "" {
+		meal.ID = s.generateID()
 	}
-
-	s.meals[id] = meal
-	return meal
+	s.meals[meal.ID] = meal
+	return nil
 }
 
 // GetMeal retrieves a meal by ID
-func (s *Store) GetMeal(id string) (models.Meal, error) {
+func (s *MemoryStore) GetMeal(id string) (*models.Meal, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
 	meal, exists := s.meals[id]
 	if !exists {
-		return models.Meal{}, ErrMealNotFound
+		return nil, ErrMealNotFound
 	}
-
 	return meal, nil
 }
 
 // UpdateMeal updates an existing meal
-func (s *Store) UpdateMeal(id string, req models.MealRequest) (models.Meal, error) {
+func (s *MemoryStore) UpdateMeal(meal *models.Meal) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	meal, exists := s.meals[id]
+	existingMeal, exists := s.meals[meal.ID]
 	if !exists {
-		return models.Meal{}, ErrMealNotFound
+		return ErrMealNotFound
 	}
 
-	meal.Name = req.Name
-	meal.Description = req.Description
-	meal.Day = req.Day
-	meal.MealType = req.MealType
-	meal.UpdatedAt = time.Now()
+	existingMeal.Name = meal.Name
+	existingMeal.Description = meal.Description
+	existingMeal.Day = meal.Day
+	existingMeal.MealType = meal.MealType
+	existingMeal.UpdatedAt = time.Now()
 
-	s.meals[id] = meal
-	return meal, nil
+	s.meals[meal.ID] = existingMeal
+	return nil
 }
 
 // DeleteMeal removes a meal from the store
-func (s *Store) DeleteMeal(id string) error {
+func (s *MemoryStore) DeleteMeal(id string) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -144,80 +155,286 @@ func (s *Store) DeleteMeal(id string) error {
 	return nil
 }
 
-// ListMeals returns all meals in the store
-func (s *Store) ListMeals() []models.Meal {
+// ListMealsByPlan returns all meals in a specific meal plan
+func (s *MemoryStore) ListMealsByPlan(mealPlanID string) []*models.Meal {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	meals := make([]models.Meal, 0, len(s.meals))
+	var meals []*models.Meal
 	for _, meal := range s.meals {
-		meals = append(meals, meal)
+		if meal.MealPlanID == mealPlanID {
+			meals = append(meals, meal)
+		}
 	}
-
 	return meals
 }
 
-// generateID creates a new unique ID for a meal
-func (s *Store) generateID() string {
-	id := s.nextMealID
-	s.nextMealID++
-	return strconv.Itoa(id)
-}
-
 // CreateOrGetUser creates a new user or returns an existing one
-func (s *Store) CreateOrGetUser(user models.User) (models.User, error) {
+func (s *MemoryStore) CreateOrGetUser(user models.User) (*models.User, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
 	// Check if user already exists by Google ID
-	if existingUserID, exists := s.usersByGoogleID[user.GoogleID]; exists {
-		return s.users[existingUserID], nil
+	if existingUser, exists := s.users[user.ID]; exists {
+		return existingUser, nil
 	}
 
 	// Create new user
-	userID := strconv.Itoa(s.nextUserID)
-	s.nextUserID++
-
+	userID := s.generateID()
 	user.ID = userID
-	s.users[userID] = user
-	s.usersByGoogleID[user.GoogleID] = userID
+	s.users[userID] = &user
 
-	return user, nil
+	return &user, nil
 }
 
 // GenerateToken creates a new JWT token for a user
-func (s *Store) GenerateToken(userID string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": userID,
-		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(), // 1 week
-	})
-
-	tokenString, err := token.SignedString(s.jwtSecret)
-	if err != nil {
-		return "", err
+func (s *MemoryStore) GenerateToken(userID string) (string, error) {
+	claims := &TokenClaims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		},
 	}
 
-	return tokenString, nil
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(s.jwtSecret)
 }
 
-// ValidateToken validates a JWT token and returns the user ID
-func (s *Store) ValidateToken(tokenString string) (string, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, ErrInvalidToken
-		}
+// ValidateToken validates a JWT token and returns the claims
+func (s *MemoryStore) ValidateToken(tokenString string) (*TokenClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return s.jwtSecret, nil
 	})
 
 	if err != nil {
-		return "", err
+		return nil, ErrInvalidToken
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		if userID, ok := claims["sub"].(string); ok {
-			return userID, nil
+	if claims, ok := token.Claims.(*TokenClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, ErrInvalidToken
+}
+
+// CreateMealPlan creates a new meal plan
+func (s *MemoryStore) CreateMealPlan(plan *models.MealPlan) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if plan.ID == "" {
+		plan.ID = s.generateID()
+	}
+	s.mealPlans[plan.ID] = plan
+	return nil
+}
+
+// GetMealPlan retrieves a meal plan by ID
+func (s *MemoryStore) GetMealPlan(id string) (*models.MealPlan, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	plan, exists := s.mealPlans[id]
+	if !exists {
+		return nil, ErrMealPlanNotFound
+	}
+	return plan, nil
+}
+
+// UpdateMealPlan updates an existing meal plan
+func (s *MemoryStore) UpdateMealPlan(plan *models.MealPlan) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	existingPlan, exists := s.mealPlans[plan.ID]
+	if !exists {
+		return ErrMealPlanNotFound
+	}
+
+	existingPlan.Name = plan.Name
+	existingPlan.Description = plan.Description
+	existingPlan.UpdatedAt = time.Now()
+
+	s.mealPlans[plan.ID] = existingPlan
+	return nil
+}
+
+// DeleteMealPlan removes a meal plan from the store
+func (s *MemoryStore) DeleteMealPlan(id string) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if _, exists := s.mealPlans[id]; !exists {
+		return ErrMealPlanNotFound
+	}
+
+	delete(s.mealPlans, id)
+	return nil
+}
+
+// ListMealPlansByUser returns all meal plans a user has access to
+func (s *MemoryStore) ListMealPlansByUser(userID string) []*models.MealPlan {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	var plans []*models.MealPlan
+	for _, access := range s.mealPlanAccess {
+		if access.UserID == userID {
+			if plan, exists := s.mealPlans[access.MealPlanID]; exists {
+				plans = append(plans, plan)
+			}
+		}
+	}
+	return plans
+}
+
+// CreateMealPlanAccess creates a new meal plan access record
+func (s *MemoryStore) CreateMealPlanAccess(access *models.MealPlanAccess) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if access.ID == "" {
+		access.ID = s.generateID()
+	}
+	s.mealPlanAccess[access.ID] = access
+	return nil
+}
+
+// CheckMealPlanAccess checks if a user has access to a meal plan
+// If checkOwner is true, it only returns true if the user is the owner
+func (s *MemoryStore) CheckMealPlanAccess(userID, mealPlanID string) (bool, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	// First check if the user created the meal plan (which makes them an owner)
+	plan, exists := s.mealPlans[mealPlanID]
+	if exists && plan.CreatedBy == userID {
+		return true, nil
+	}
+
+	// Then check for explicit access grants
+	for _, access := range s.mealPlanAccess {
+		if access.UserID == userID && access.MealPlanID == mealPlanID {
+			return true, nil
 		}
 	}
 
-	return "", ErrInvalidToken
+	return false, ErrAccessDenied
+}
+
+// CheckMealPlanOwnership checks if a user is the owner of a meal plan
+func (s *MemoryStore) CheckMealPlanOwnership(userID, mealPlanID string) (bool, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	// Check if the user created the meal plan
+	plan, exists := s.mealPlans[mealPlanID]
+	if exists && plan.CreatedBy == userID {
+		return true, nil
+	}
+
+	// Check for explicit owner access
+	for _, access := range s.mealPlanAccess {
+		if access.UserID == userID && access.MealPlanID == mealPlanID && access.Role == "owner" {
+			return true, nil
+		}
+	}
+
+	return false, ErrAccessDenied
+}
+
+// GetUserByGoogleID retrieves a user by their Google ID
+func (s *MemoryStore) GetUserByGoogleID(googleID string) (*models.User, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	for _, user := range s.users {
+		if user.ID == googleID {
+			return user, nil
+		}
+	}
+	return nil, ErrUserNotFound
+}
+
+// GetUserByID retrieves a user by their ID
+func (s *MemoryStore) GetUserByID(id string) (*models.User, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	user, exists := s.users[id]
+	if !exists {
+		return nil, ErrUserNotFound
+	}
+	return user, nil
+}
+
+// CreateOrUpdateUser creates a new user or updates an existing one
+func (s *MemoryStore) CreateOrUpdateUser(user *models.User) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	// Check if user exists by ID
+	if existingUser, exists := s.users[user.ID]; exists {
+		// Update existing user
+		existingUser.Email = user.Email
+		existingUser.Name = user.Name
+		s.users[user.ID] = existingUser
+		return nil
+	}
+
+	// Create new user
+	s.users[user.ID] = user
+	return nil
+}
+
+// GetUserByEmail returns a user by email
+func (s *MemoryStore) GetUserByEmail(email string) (*models.User, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	// Find user by email
+	for _, user := range s.users {
+		if user.Email == email {
+			return user, nil
+		}
+	}
+
+	return nil, ErrUserNotFound
+}
+
+// CreateShareLink creates a new share link
+func (s *MemoryStore) CreateShareLink(link *models.ShareLink) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if link.ID == "" {
+		link.ID = s.generateID()
+	}
+	s.shareLinks[link.ID] = link
+	return nil
+}
+
+// GetShareLink retrieves a share link by ID
+func (s *MemoryStore) GetShareLink(id string) (*models.ShareLink, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	link, exists := s.shareLinks[id]
+	if !exists {
+		return nil, errors.New("share link not found")
+	}
+	return link, nil
+}
+
+// DeleteShareLink removes a share link from the store
+func (s *MemoryStore) DeleteShareLink(id string) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if _, exists := s.shareLinks[id]; !exists {
+		return errors.New("share link not found")
+	}
+
+	delete(s.shareLinks, id)
+	return nil
 }

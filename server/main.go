@@ -1,48 +1,88 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 
 	"my-meal-planner/api"
 	"my-meal-planner/db"
 )
 
 func main() {
-	// Create a new store
-	store := db.NewStore()
-
-	// Create a new API handler
-	handler := api.NewHandler(store)
-
-	// Create a new HTTP server mux
-	mux := http.NewServeMux()
-
-	// Register health check route
-	mux.HandleFunc("/api/health", healthCheckHandler)
-
-	// Register API routes
-	handler.RegisterRoutes(mux)
-
-	// Enable CORS
-	corsHandler := enableCORS(mux)
-
-	// Start the server
-	log.Println("Starting server on :8080")
-	log.Fatal(http.ListenAndServe(":8080", corsHandler))
-}
-
-func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	response := map[string]string{
-		"status":  "ok",
-		"message": "Server is running",
+	// Load .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file:", err)
+		// Continue anyway, as env vars might be set directly
 	}
 
-	json.NewEncoder(w).Encode(response)
+	// Get Google OAuth credentials from environment
+	clientID := os.Getenv("GOOGLE_CLIENT_ID")
+	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	redirectURL := os.Getenv("OAUTH_REDIRECT_URL")
+
+	// Debug logging for OAuth credentials
+	log.Println("OAuth Configuration:")
+	log.Println("Client ID:", clientID)
+	if clientSecret != "" {
+		log.Println("Client Secret:", clientSecret[:5]+"..."+clientSecret[len(clientSecret)-5:])
+	} else {
+		log.Println("Client Secret: <not set>")
+	}
+	log.Println("Redirect URL:", redirectURL)
+
+	if redirectURL == "" {
+		redirectURL = "http://localhost:8080/auth/google/callback"
+	}
+
+	// JWT secret
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "my-meal-planner-secret-key" // Default secret for development
+	}
+
+	// Create OAuth config
+	oauthConfig := &oauth2.Config{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectURL,
+		Scopes: []string{
+			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
+			"openid",
+		},
+		Endpoint: google.Endpoint,
+	}
+
+	// Create store
+	store := db.NewMemoryStore(oauthConfig, []byte(jwtSecret))
+
+	// Create handler
+	handler := api.NewHandler(store)
+
+	// Create mux
+	mux := http.NewServeMux()
+
+	// Register routes
+	handler.RegisterRoutes(mux)
+
+	// Serve static files from the client directory
+	fs := http.FileServer(http.Dir("../client/dist"))
+	mux.Handle("/", fs)
+
+	// Add CORS middleware
+	corsHandler := enableCORS(mux)
+
+	// Start server
+	log.Println("Server starting on http://localhost:8080")
+	if err := http.ListenAndServe(":8080", corsHandler); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // enableCORS wraps a handler with CORS support
