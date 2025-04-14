@@ -187,7 +187,7 @@ function App() {
   const handleLoginSuccess = (): void => {
     setIsAuthenticated(true);
     setAuthError("");
-    fetchMeals();
+    getMeals();
   };
 
   const handleLoginFailure = (error: string): void => {
