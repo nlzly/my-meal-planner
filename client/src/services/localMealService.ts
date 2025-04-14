@@ -1,4 +1,4 @@
-import { Meal } from '../types/meal';
+import { Meal } from '../types/types';
 
 const MEALS_KEY = 'meals';
 

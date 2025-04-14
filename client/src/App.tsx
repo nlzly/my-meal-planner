@@ -8,27 +8,17 @@ import LoginButton from "./components/LoginButton";
 import Modal from "./components/Modal";
 import ConfirmModal from "./components/ConfirmModal";
 import JoinMealPlan from "./components/JoinMealPlan";
-import { Meal, Day, MealType } from "./types/meal";
+import { Meal, Day, MealType, MealPlan } from "./types/types";
 import "./App.css";
 import ShareLinkModal from './components/ShareLinkModal';
+import { fetchMealPlans } from "./features/mealsApi";
 
 const DAYS: Day[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const MEAL_TYPES: MealType[] = ["Breakfast", "Lunch", "Dinner"];
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
 
-interface MealPlan {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-}
+
+
 
 function App() {
   const [status, setStatus] = useState<string>("Loading...");
@@ -79,7 +69,16 @@ function App() {
       }
     }
 
-    fetchMealPlans();
+     fetchMealPlans().then( response => {
+        if(response.status == 200) {
+          setMealPlans(response.data)
+          setStatus("")
+        } else {
+          setMealPlans([])
+          setStatus(response.error)
+        }
+     });
+    
   }, []);
 
   useEffect(() => {
@@ -88,23 +87,7 @@ function App() {
     }
   }, [selectedMealPlanId]);
 
-  const fetchMealPlans = async () => {
-    try {
-      const response = await axios.get<MealPlan[]>("/api/meal-plans");
-      if (response.data && response.data.length > 0) {
-        setMealPlans(response.data);
-        setSelectedMealPlanId(response.data[0].id);
-      } else {
-        // Handle empty response
-        setMealPlans([]);
-        setStatus("No meal plans found. Create your first meal plan.");
-      }
-    } catch (error) {
-      console.error("Error fetching meal plans:", error);
-      setError("Failed to load meal plans. Please try again.");
-      setMealPlans([]); // Ensure mealPlans is always an array
-    }
-  };
+  
 
   const fetchMeals = async (): Promise<void> => {
     if (!selectedMealPlanId) {

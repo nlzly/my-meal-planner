@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import MealItem from "./MealItem";
-import { Meal, Day, MealType } from "../types/meal";
+import { Meal, Day, MealType } from "../types/types";
 
 type MealGridProps = {
   days: Day[];
