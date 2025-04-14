@@ -11,7 +11,7 @@ import JoinMealPlan from "./components/JoinMealPlan";
 import { Meal, Day, MealType, MealPlan } from "./features/meals/types";
 import "./App.css";
 import ShareLinkModal from './components/ShareLinkModal';
-import { fetchMealPlans } from "./features/meals/mealsApi";
+import { fetchMealPlans, fetchMeals } from "./features/meals/mealsApi";
 
 const DAYS: Day[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const MEAL_TYPES: MealType[] = ["Breakfast", "Lunch", "Dinner"];
@@ -83,29 +83,29 @@ function App() {
 
   useEffect(() => {
     if (selectedMealPlanId) {
-      fetchMeals();
+      getMeals();
     }
   }, [selectedMealPlanId]);
 
   
 
-  const fetchMeals = async (): Promise<void> => {
+  const getMeals = async (): Promise<void> => {
     if (!selectedMealPlanId) {
       setMeals([]);
       setLoading(false);
       return;
     }
     
-    try {
-      const response = await axios.get<Meal[]>(`/api/meals?mealPlanId=${selectedMealPlanId}`);
-      setMeals(response.data || []);
-      setLoading(false);
-    } catch (error: any) {
-      console.error("Error fetching meals:", error);
-      setError("Failed to load meals. Please try again.");
-      setLoading(false);
-      setMeals([]); // Ensure meals is always an array
-    }
+    fetchMeals(selectedMealPlanId).then( response => {
+      if(response.status == 200) {
+        setMeals(response.data);
+        setLoading(false);
+      } else {
+        setMeals([]);
+        setError(response.error);
+        setLoading(false);
+      }
+    })
   };
 
   const handleCreateMealPlan = async () => {
