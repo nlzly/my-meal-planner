@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Meal, Day, MealType, MealRequest } from '../types/types';
+import { Meal, Day, MealType, MealRequest } from '../features/meals/types';
 import * as localMealService from '../services/localMealService';
 
 interface AddMealFormProps {

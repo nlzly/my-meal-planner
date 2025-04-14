@@ -1,5 +1,5 @@
 import axios from "axios";
-import { MealPlan } from "../types/types";
+import { MealPlan } from "./types";
 
 export interface MealPlanResponse {
     data : MealPlan[],
@@ -11,7 +11,7 @@ export const fetchMealPlans = async (): Promise<MealPlanResponse> => {
     try {
       const response = await axios.get<MealPlan[]>("/api/meal-plans");
         return {
-            data: response.data,
+            data: response.data?.length > 0 ? response.data : [],
             error: "",
             status: response.status
         }

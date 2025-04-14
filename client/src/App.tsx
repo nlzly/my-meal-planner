@@ -8,10 +8,10 @@ import LoginButton from "./components/LoginButton";
 import Modal from "./components/Modal";
 import ConfirmModal from "./components/ConfirmModal";
 import JoinMealPlan from "./components/JoinMealPlan";
-import { Meal, Day, MealType, MealPlan } from "./types/types";
+import { Meal, Day, MealType, MealPlan } from "./features/meals/types";
 import "./App.css";
 import ShareLinkModal from './components/ShareLinkModal';
-import { fetchMealPlans } from "./features/mealsApi";
+import { fetchMealPlans } from "./features/meals/mealsApi";
 
 const DAYS: Day[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const MEAL_TYPES: MealType[] = ["Breakfast", "Lunch", "Dinner"];
