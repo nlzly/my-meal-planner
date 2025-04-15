@@ -2,41 +2,22 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
 import * as localMealService from "./services/localMealService";
-import AddMealForm from "./components/AddMealForm";
-import MealGrid from "./components/MealGrid";
 import LoginButton from "./components/LoginButton";
-import Modal from "./components/Modal";
-import ConfirmModal from "./components/ConfirmModal";
 import JoinMealPlan from "./components/JoinMealPlan";
+import MealPlannerContainer from "./components/MealPlannerContainer"; // Import the new component
 import { Meal, Day, MealType, MealPlan } from "./features/meals/types";
 import "./App.css";
-import ShareLinkModal from './components/ShareLinkModal';
 import { fetchMealPlans, fetchMeals } from "./features/meals/mealsApi";
-
-const DAYS: Day[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const MEAL_TYPES: MealType[] = ["Breakfast", "Lunch", "Dinner"];
-
-
-
 
 
 function App() {
   const [status, setStatus] = useState<string>("Loading...");
-  const [meals, setMeals] = useState<Meal[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
-  const [showAddForm, setShowAddForm] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDay, setSelectedDay] = useState<Day>(DAYS[0]);
-  const [selectedMealType, setSelectedMealType] = useState<MealType>(MEAL_TYPES[0]);
-  const [mealToEdit, setMealToEdit] = useState<Meal | undefined>();
-  const [weekStartDate] = useState(new Date());
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [weekStartDate] = useState(new Date()); // Keep for now, might be needed elsewhere or passed down
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
-  const [selectedMealPlanId, setSelectedMealPlanId] = useState<string>("");
-  const [showCreatePlanModal, setShowCreatePlanModal] = useState(false);
+  const [selectedMealPlanId, setSelectedMealPlanId] = useState<string>(""); // Keep: Used for selection
+  const [showCreatePlanModal, setShowCreatePlanModal] = useState(false); // Keep: Controls modal in App scope
   const [newPlanName, setNewPlanName] = useState("");
   const [newPlanDescription, setNewPlanDescription] = useState("");
   const [showShareModal, setShowShareModal] = useState(false);
@@ -81,34 +62,7 @@ function App() {
     
   }, []);
 
-  useEffect(() => {
-    if (selectedMealPlanId) {
-      getMeals();
-    }
-  }, [selectedMealPlanId]);
-
-  
-
-  const getMeals = async (): Promise<void> => {
-    if (!selectedMealPlanId) {
-      setMeals([]);
-      setLoading(false);
-      return;
-    }
-    
-    fetchMeals(selectedMealPlanId).then( response => {
-      if(response.status == 200) {
-        setMeals(response.data);
-        setLoading(false);
-      } else {
-        setMeals([]);
-        setError(response.error);
-        setLoading(false);
-      }
-    })
-  };
-
-  const handleCreateMealPlan = async () => {
+  const handleCreateMealPlan = async () => { // Keep: Manages meal plan list and creation modal
     try {
       const response = await axios.post<MealPlan>("/api/meal-plans", {
         name: newPlanName,
@@ -121,106 +75,26 @@ function App() {
       setNewPlanDescription("");
     } catch (error) {
       console.error("Error creating meal plan:", error);
-      setError("Failed to create meal plan. Please try again.");
+      // setError("Failed to create meal plan. Please try again."); // Error state moved
+      setStatus("Failed to create meal plan."); // Use status for general messages
     }
   };
 
-  const handleMealAdded = (newMeal: Meal): void => {
-    setMeals((prevMeals) => {
-      if (mealToEdit) {
-        return prevMeals.map((meal) => meal.id === mealToEdit.id ? newMeal : meal);
-      }
-      return [...prevMeals, newMeal];
-    });
-    setShowAddForm(false);
-    setIsModalOpen(false);
-    setMealToEdit(undefined);
-  };
-
-  const handleDeleteMeal = (mealId: string): void => {
-    localMealService.deleteMeal(mealId);
-    setMeals((prevMeals) => prevMeals.filter((meal) => meal.id !== mealId));
-  };
-
-  const handleUpdateMeal = (updatedMeal: Meal): void => {
-    setMealToEdit(updatedMeal);
-    setIsModalOpen(true);
-    setSelectedDay(updatedMeal.day as Day);
-    setSelectedMealType(updatedMeal.mealType as MealType);
-  };
-
-  const handleMoveMeal = (mealId: string, newDay: Day, newMealType: MealType): void => {
-    const meal = meals.find(m => m.id === mealId);
-    if (meal) {
-      const updatedMeal = {
-        ...meal,
-        day: newDay,
-        mealType: newMealType
-      };
-      localMealService.updateMeal(updatedMeal);
-      setMeals(prevMeals => 
-        prevMeals.map(m => m.id === mealId ? updatedMeal : m)
-      );
-    }
-  };
-
-  const handleCopyMeal = (meal: Meal, newDay: Day, newMealType: MealType): void => {
-    const newMeal = {
-      ...meal,
-      id: crypto.randomUUID(), // Generate a new ID for the copy
-      day: newDay,
-      mealType: newMealType,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    localMealService.addMeal(newMeal);
-    setMeals(prevMeals => [...prevMeals, newMeal]);
-  };
-
-  const getMealsForSlot = (day: Day, mealType: MealType): Meal[] => {
-    if (!meals || !Array.isArray(meals)) {
-      return [];
-    }
-    return meals.filter((meal) => meal.day === day && meal.mealType === mealType);
-  };
-
-  const handleLoginSuccess = (): void => {
+  const handleLoginSuccess = (): void => { // Keep: Manages auth state
     setIsAuthenticated(true);
     setAuthError("");
-    getMeals();
+    // getMeals(); // Removed: MealPlannerContainer fetches its own meals
   };
 
-  const handleLoginFailure = (error: string): void => {
+  const handleLoginFailure = (error: string): void => { // Keep: Manages auth state
     setAuthError(error);
   };
 
-  const handleLogout = () => {
+  const handleLogout = () => { // Keep: Manages auth state
     localStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
     setIsAuthenticated(false);
-    setMeals([]);
-  };
-
-  const handleAddMeal = () => {
-    setShowAddForm(true);
-  };
-
-  const handleClearMealPlan = () => {
-    setShowConfirmModal(true);
-  };
-
-  const handleConfirmClear = () => {
-    try {
-      const success = localMealService.clearMealsForWeek(weekStartDate);
-      if (success) {
-        setMeals([]);
-      }
-    } catch (err) {
-      console.error('Error clearing meals:', err);
-      alert('Failed to clear meals. Please try again.');
-    } finally {
-      setShowConfirmModal(false);
-    }
+    // setMeals([]); // meals state moved
   };
 
   return (
@@ -255,148 +129,24 @@ function App() {
                   />
                 } 
               />
-              <Route 
-                path="/" 
+              <Route
+                path="/"
                 element={
-                  <section className="meal-planner-container">
-                    <div className="meal-planner-header">
-                      <h2>Weekly Meal Plan</h2>
-                      <div className="header-buttons">
-                        <select 
-                          className="meal-plan-select"
-                          value={selectedMealPlanId}
-                          onChange={(e) => setSelectedMealPlanId(e.target.value)}
-                        >
-                          {mealPlans && mealPlans.length > 0 ? (
-                            mealPlans.map(plan => (
-                              <option key={plan.id} value={plan.id}>
-                                {plan.name}
-                              </option>
-                            ))
-                          ) : (
-                            <option value="">No meal plans available</option>
-                          )}
-                        </select>
-                        <button className="create-plan-button" onClick={() => setShowCreatePlanModal(true)}>
-                          Create New Plan
-                        </button>
-                        {selectedMealPlanId && (
-                          <button 
-                            className="share-button" 
-                            onClick={() => setShowShareModal(true)}
-                          >
-                            Share Plan
-                          </button>
-                        )}
-                        <button 
-                          className="clear-button" 
-                          onClick={handleClearMealPlan}
-                          disabled={!selectedMealPlanId}
-                        >
-                          Clear Meal Plan
-                        </button>
-                        <button 
-                          className="add-button" 
-                          onClick={handleAddMeal}
-                          disabled={!selectedMealPlanId}
-                        >
-                          Add Meal
-                        </button>
-                      </div>
-                    </div>
-
-                    {showAddForm && <AddMealForm onMealAdded={handleMealAdded} initialDay={DAYS[0]} initialMealType={MEAL_TYPES[0]} />}
-                    {error && <div className="error-message">{error}</div>}
-
-                    <div>
-                      <Modal isOpen={isModalOpen} onClose={() => {
-                        setIsModalOpen(false);
-                        setMealToEdit(undefined);
-                      }}>
-                        <AddMealForm 
-                          onMealAdded={handleMealAdded} 
-                          initialDay={selectedDay} 
-                          initialMealType={selectedMealType}
-                          mealToEdit={mealToEdit}
-                        />
-                      </Modal>
-
-                      <ConfirmModal
-                        isOpen={showConfirmModal}
-                        onClose={() => setShowConfirmModal(false)}
-                        onConfirm={handleConfirmClear}
-                        title="Clear Meal Plan"
-                        message="Are you sure you want to clear all meals for this week? This action cannot be undone."
-                      />
-                    </div>
-
-                    <Modal isOpen={showCreatePlanModal} onClose={() => setShowCreatePlanModal(false)}>
-                      <div className="create-plan-form">
-                        <h2>Create New Meal Plan</h2>
-                        <div className="form-group">
-                          <label htmlFor="planName">Plan Name</label>
-                          <input
-                            type="text"
-                            id="planName"
-                            value={newPlanName}
-                            onChange={(e) => setNewPlanName(e.target.value)}
-                            placeholder="Enter plan name"
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="planDescription">Description</label>
-                          <textarea
-                            id="planDescription"
-                            value={newPlanDescription}
-                            onChange={(e) => setNewPlanDescription(e.target.value)}
-                            placeholder="Enter plan description"
-                          />
-                        </div>
-                        <div className="form-buttons">
-                          <button className="cancel-button" onClick={() => setShowCreatePlanModal(false)}>
-                            Cancel
-                          </button>
-                          <button 
-                            className="submit-button"
-                            onClick={handleCreateMealPlan}
-                            disabled={!newPlanName.trim()}
-                          >
-                            Create Plan
-                          </button>
-                        </div>
-                      </div>
-                    </Modal>
-
-                    {loading ? (
-                      <div className="loading">Loading meals...</div>
-                    ) : (
-                      <MealGrid
-                        days={DAYS}
-                        mealTypes={MEAL_TYPES}
-                        getMealsForSlot={getMealsForSlot}
-                        onDeleteMeal={handleDeleteMeal}
-                        onUpdateMeal={handleUpdateMeal}
-                        onMoveMeal={handleMoveMeal}
-                        onCopyMeal={handleCopyMeal}
-                        openModal={(day, mealType) => {
-                          setSelectedDay(day);
-                          setSelectedMealType(mealType);
-                          setIsModalOpen(true);
-                        }}
-                      />
-                    )}
-
-                    {/* Share Meal Plan Modal */}
-                    {selectedMealPlanId && (
-                      <ShareLinkModal
-                        isOpen={showShareModal}
-                        onClose={() => setShowShareModal(false)}
-                        mealPlanId={selectedMealPlanId}
-                        mealPlanName={mealPlans.find(p => p.id === selectedMealPlanId)?.name || ''}
-                      />
-                    )}
-                  </section>
-                } 
+                  <MealPlannerContainer
+                    selectedMealPlanId={selectedMealPlanId}
+                    setSelectedMealPlanId={setSelectedMealPlanId} // Still needed to change plan
+                    mealPlans={mealPlans} // List of plans
+                    setShowCreatePlanModal={setShowCreatePlanModal} // Show create modal
+                    setShowShareModal={setShowShareModal} // Show share modal
+                    showCreatePlanModal={showCreatePlanModal} // Create modal state
+                    newPlanName={newPlanName} // Create modal state
+                    setNewPlanName={setNewPlanName} // Create modal state
+                    newPlanDescription={newPlanDescription} // Create modal state
+                    setNewPlanDescription={setNewPlanDescription} // Create modal state
+                    handleCreateMealPlan={handleCreateMealPlan} // Create plan handler
+                    showShareModal={showShareModal} // Share modal state
+                  />
+                }
               />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
