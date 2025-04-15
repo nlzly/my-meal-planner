@@ -1,5 +1,5 @@
-import axios from "axios";
 import { Meal, MealPlan } from "./types";
+import api from "../../services/axios";
 
 export interface MealPlanResponse {
     data : MealPlan[],
@@ -15,7 +15,7 @@ export interface MealResponse {
 
 export const fetchMealPlans = async (): Promise<MealPlanResponse> => {
     try {
-      const response = await axios.get<MealPlan[]>("/api/meal-plans");
+      const response = await api.get<MealPlan[]>("/api/meal-plans");
         return {
             data: response.data?.length > 0 ? response.data : [],
             error: "",
@@ -33,7 +33,7 @@ export const fetchMealPlans = async (): Promise<MealPlanResponse> => {
 
   export const fetchMeals = async(selectedMealPlanId : string) : Promise<MealResponse> => {
     try {
-        const response = await axios.get<Meal[]>(`/api/meals?mealPlanId=${selectedMealPlanId}`)
+        const response = await api.get<Meal[]>(`/api/meals?mealPlanId=${selectedMealPlanId}`)
         return {
             data: response.data?.length > 0 ? response.data : [],
             error: "",
@@ -51,7 +51,7 @@ export const fetchMealPlans = async (): Promise<MealPlanResponse> => {
 
   export const addMeal = async(meal : Meal, selectedMealPlanId : string) : Promise<void> => {
     try {
-        await axios.post<Meal>("/api/meals", {
+        await api.post<Meal>("/api/meals", {
             meal: meal,
             mealPlanId: selectedMealPlanId,
           });
@@ -62,7 +62,7 @@ export const fetchMealPlans = async (): Promise<MealPlanResponse> => {
 
   export const deleteMeal = async(mealId : string) : Promise<void> => {
     try {
-        await axios.delete<Meal>(`/api/meals/${mealId}`);
+        await api.delete<Meal>(`/api/meals/${mealId}`);
     } catch (error) {
         console.error("Error deleting meal:", error);
     }

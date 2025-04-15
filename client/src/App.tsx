@@ -8,6 +8,7 @@ import MealPlannerContainer from "./components/MealPlannerContainer"; // Import 
 import { MealPlan } from "./features/meals/types";
 import "./App.css";
 import { fetchMealPlans } from "./features/meals/mealsApi";
+import api from "./services/axios";
 
 
 function App() {
@@ -65,7 +66,7 @@ function App() {
 
   const handleCreateMealPlan = async () => { // Keep: Manages meal plan list and creation modal
     try {
-      const response = await axios.post<MealPlan>("/api/meal-plans", {
+      const response = await api.post<MealPlan>("/api/meal-plans", {
         name: newPlanName,
         description: newPlanDescription,
       });
