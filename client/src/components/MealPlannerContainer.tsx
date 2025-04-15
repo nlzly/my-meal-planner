@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'; // Added useState, useEffect
 import { Meal, Day, MealType, MealPlan } from "../features/meals/types";
-import * as localMealService from "../services/localMealService"; // Added localMealService
+// import * as localMealService from "../services/localMealService"; // Added localMealService
 import { deleteMeal, fetchMeals } from "../features/meals/mealsApi"; // Added fetchMeals
 import AddMealForm from "./AddMealForm";
 import MealGrid from "./MealGrid";
