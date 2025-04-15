@@ -1,20 +1,20 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
-import * as localMealService from "./services/localMealService";
+// import * as localMealService from "./services/localMealService";
 import LoginButton from "./components/LoginButton";
 import JoinMealPlan from "./components/JoinMealPlan";
 import MealPlannerContainer from "./components/MealPlannerContainer"; // Import the new component
-import { Meal, Day, MealType, MealPlan } from "./features/meals/types";
+import { MealPlan } from "./features/meals/types";
 import "./App.css";
-import { fetchMealPlans, fetchMeals } from "./features/meals/mealsApi";
+import { fetchMealPlans } from "./features/meals/mealsApi";
 
 
 function App() {
   const [status, setStatus] = useState<string>("Loading...");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [weekStartDate] = useState(new Date()); // Keep for now, might be needed elsewhere or passed down
+  const [authError] = useState<string | null>(null);
+  // const [weekStartDate] = useState(new Date()); // Keep for now, might be needed elsewhere or passed down
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
   const [selectedMealPlanId, setSelectedMealPlanId] = useState<string>(""); // Keep: Used for selection
   const [showCreatePlanModal, setShowCreatePlanModal] = useState(false); // Keep: Controls modal in App scope
@@ -81,15 +81,15 @@ function App() {
     }
   };
 
-  const handleLoginSuccess = (): void => { // Keep: Manages auth state
-    setIsAuthenticated(true);
-    setAuthError("");
-    // getMeals(); // Removed: MealPlannerContainer fetches its own meals
-  };
+  // const handleLoginSuccess = (): void => { // Keep: Manages auth state
+  //   setIsAuthenticated(true);
+  //   setAuthError("");
+  //   // getMeals(); // Removed: MealPlannerContainer fetches its own meals
+  // };
 
-  const handleLoginFailure = (error: string): void => { // Keep: Manages auth state
-    setAuthError(error);
-  };
+  // const handleLoginFailure = (error: string): void => { // Keep: Manages auth state
+  //   setAuthError(error);
+  // };
 
   const handleLogout = () => { // Keep: Manages auth state
     localStorage.removeItem('token');

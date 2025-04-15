@@ -24,7 +24,7 @@ const JoinMealPlan: React.FC<JoinMealPlanProps> = ({
     const joinMealPlan = async () => {
       setLoading(true);
       setError(null);
-      
+      console.log(mealPlanId)
       // Get the code from the URL query parameter
       const queryParams = new URLSearchParams(location.search);
       const code = queryParams.get('code');
