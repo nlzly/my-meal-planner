@@ -3,7 +3,8 @@ import React from 'react';
 const LoginButton: React.FC = () => {
   const handleLogin = () => {
     // Redirect to the server's OAuth login endpoint
-    window.location.href = '/auth/google/login';
+    const apiUrl = import.meta.env.VITE_API_URL;
+    window.location.href = `${apiUrl}/auth/google/login`;
   };
 
   return (
