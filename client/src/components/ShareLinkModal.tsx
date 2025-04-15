@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import Modal from './Modal';
+import api from '../services/axios';
 
 interface ShareLinkModalProps {
   isOpen: boolean;
@@ -24,10 +24,10 @@ const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
 
   const handleGenerateLink = async () => {
     setIsGenerating(true);
-    setError('');
+    setError(''); 
 
     try {
-      const response = await axios.post('/api/meal-plans/generate-link', {
+      const response = await api.post('/api/meal-plans/generate-link', {
         mealPlanId,
         role,
         expiresIn,

@@ -8,6 +8,7 @@ import MealPlannerContainer from "./components/MealPlannerContainer"; // Import 
 import { MealPlan } from "./features/meals/types";
 import "./App.css";
 import { fetchMealPlans } from "./features/meals/mealsApi";
+import api, { setAuthToken } from "./services/axios";
 
 
 function App() {
@@ -29,24 +30,17 @@ function App() {
     const returnTo = queryParams.get('returnTo');
 
     if (token) {
-      // Store token in localStorage
-      localStorage.setItem('token', token);
-      
-      // Set auth header for axios
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      // Update auth state
-      setIsAuthenticated(true);
-      
-      // Clear query parameters
-      const newUrl = returnTo || window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
+      localStorage.setItem('token', token)
+      setAuthToken(token) // ✅ update your axios instance
+      setIsAuthenticated(true)
+    
+      const newUrl = returnTo || window.location.pathname
+      window.history.replaceState({}, document.title, newUrl)
     } else {
-      // Check if we have a token in localStorage
-      const storedToken = localStorage.getItem('token');
+      const storedToken = localStorage.getItem('token')
       if (storedToken) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-        setIsAuthenticated(true);
+        setAuthToken(storedToken) // ✅ apply token from localStorage
+        setIsAuthenticated(true)
       }
     }
 
@@ -65,7 +59,7 @@ function App() {
 
   const handleCreateMealPlan = async () => { // Keep: Manages meal plan list and creation modal
     try {
-      const response = await axios.post<MealPlan>("/api/meal-plans", {
+      const response = await api.post<MealPlan>("/api/meal-plans", {
         name: newPlanName,
         description: newPlanDescription,
       });

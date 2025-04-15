@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../services/axios';
 
 interface JoinMealPlanProps {
   setSelectedMealPlanId: (id: string) => void;
@@ -48,7 +49,7 @@ const JoinMealPlan: React.FC<JoinMealPlanProps> = ({
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         
         // Join the meal plan
-        const response = await axios.post('/api/meal-plans/join', { code });
+        const response = await api.post('/api/meal-plans/join', { code });
         
         // Handle successful join
         setSuccess(true);

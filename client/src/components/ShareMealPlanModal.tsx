@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import Modal from './Modal';
+import api from '../services/axios';
 
 interface ShareMealPlanModalProps {
   isOpen: boolean;
@@ -31,7 +31,7 @@ const ShareMealPlanModal: React.FC<ShareMealPlanModalProps> = ({
     setError('');
 
     try {
-      await axios.post('/api/meal-plans/share', {
+      await api.post('/api/meal-plans/share', {
         mealPlanId,
         email,
         role,
