@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -479,7 +480,11 @@ func (h *Handler) handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Redirect back to the frontend with the token
-	clientURL := "http://localhost:5173"
+	clientURL := os.Getenv("FRONTEND_URL")
+	if clientURL == "" {
+		clientURL = "http://localhost:5173" // fallback for local dev
+	}
+
 	http.Redirect(w, r, clientURL+"?token="+jwtToken, http.StatusTemporaryRedirect)
 }
 
