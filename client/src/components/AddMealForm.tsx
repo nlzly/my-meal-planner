@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Meal, Day, MealType, MealRequest } from '../types/meal';
+import { Meal, Day, MealType, MealRequest } from '../features/meals/types';
 import * as localMealService from '../services/localMealService';
+import { addMeal } from '../features/meals/mealsApi';
 
 interface AddMealFormProps {
   onMealAdded: (meal: Meal) => void;
   initialDay: Day;
   initialMealType: MealType;
   mealToEdit?: Meal;
+  selectedMealPlanId: string;
 }
 
 const AddMealForm: React.FC<AddMealFormProps> = ({
   onMealAdded,
   initialDay,
   initialMealType,
-  mealToEdit
+  mealToEdit,
+  selectedMealPlanId
 }) => {
   const [formData, setFormData] = useState<MealRequest>({
     name: '',
@@ -43,11 +46,12 @@ const AddMealForm: React.FC<AddMealFormProps> = ({
       createdAt: mealToEdit?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-
+    console.log(selectedMealPlanId)
     if (mealToEdit) {
       localMealService.updateMeal(meal);
     } else {
       localMealService.addMeal(meal);
+      addMeal(meal, selectedMealPlanId)
     }
 
     onMealAdded(meal);

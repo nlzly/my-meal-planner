@@ -1,6 +1,6 @@
 import React from 'react';
 import * as localMealService from '../services/localMealService';
-import { Meal } from '../types/meal';
+import { Meal } from '../features/meals/types';
 
 interface MealItemProps {
   meal: Meal;

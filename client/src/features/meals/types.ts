@@ -19,3 +19,18 @@ export interface MealRequest {
   day: Day;
   mealType: MealType;
 } 
+
+export interface MealPlan {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}

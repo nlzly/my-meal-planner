@@ -512,3 +512,352 @@ main {
   max-height: 90vh;
   overflow-y: auto;
 }
+
+.user-select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: white;
+  font-size: 14px;
+  margin-right: 16px;
+  min-width: 200px;
+}
+
+.user-select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.meal-plan-select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: white;
+  font-size: 14px;
+  margin-right: 16px;
+  min-width: 200px;
+}
+
+.meal-plan-select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.create-plan-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 16px;
+  transition: background-color 0.2s;
+}
+
+.create-plan-button:hover {
+  background-color: #218838;
+}
+
+.create-plan-form {
+  padding: 20px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.create-plan-form h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.create-plan-form .form-group {
+  margin-bottom: 15px;
+}
+
+.create-plan-form label {
+  display: block;
+  margin-bottom: 5px;
+  color: #666;
+}
+
+.create-plan-form input,
+.create-plan-form textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.create-plan-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.form-buttons button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.form-buttons .cancel-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}
+
+.form-buttons .cancel-button:hover {
+  background-color: #5a6268;
+}
+
+.form-buttons .submit-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+.form-buttons .submit-button:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.form-buttons .submit-button:disabled {
+  background-color: #a9a9a9;
+  cursor: not-allowed;
+}
+
+/* Share Meal Plan Modal */
+.share-meal-plan-modal {
+  padding: 20px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.share-meal-plan-modal h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.share-meal-plan-modal p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.share-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.share-button:hover:not(:disabled) {
+  background-color: #3e8e41;
+}
+
+.share-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.success-message {
+  background-color: #dff0d8;
+  color: #3c763d;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+  .share-meal-plan-modal {
+    padding: 15px;
+  }
+}
+
+/* Share Link Modal */
+.share-link-modal {
+  padding: 20px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.share-link-modal h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.share-link-modal p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.share-link-container {
+  margin-top: 20px;
+}
+
+.share-link-box {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.share-link-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+}
+
+.copy-link-button {
+  padding: 10px 15px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.copy-link-button:hover {
+  background-color: #0b7dda;
+}
+
+.share-link-note {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.generate-button {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.generate-button:hover:not(:disabled) {
+  background-color: #0b7dda;
+}
+
+.generate-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.close-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.close-button:hover {
+  background-color: #5a6268;
+}
+
+.generate-new-button {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.generate-new-button:hover {
+  background-color: #0b7dda;
+}
+
+/* Join Meal Plan Styles */
+.join-meal-plan {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.join-meal-plan h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 20px 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.continue-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+  transition: background-color 0.3s;
+}
+
+.continue-button:hover {
+  background-color: #45a049;
+}
+
+.return-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+  transition: background-color 0.3s;
+}
+
+.return-button:hover {
+  background-color: #5a6268;
+}
