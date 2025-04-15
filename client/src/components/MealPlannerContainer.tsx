@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'; // Added useState, useEffect
 import { Meal, Day, MealType, MealPlan } from "../features/meals/types";
 import * as localMealService from "../services/localMealService"; // Added localMealService
-import { fetchMeals } from "../features/meals/mealsApi"; // Added fetchMeals
+import { deleteMeal, fetchMeals } from "../features/meals/mealsApi"; // Added fetchMeals
 import AddMealForm from "./AddMealForm";
 import MealGrid from "./MealGrid";
 import Modal from "./Modal";
@@ -110,7 +110,9 @@ const MealPlannerContainer: React.FC<MealPlannerContainerProps> = ({
     // TODO: Call backend API to delete meal
     // For now, using localMealService as placeholder if needed, or just update state
     // localMealService.deleteMeal(mealId); // Example if using local service
-    setMeals((prevMeals) => prevMeals.filter((meal) => meal.id !== mealId));
+    deleteMeal(mealId).then(() => {
+      setMeals((prevMeals) => prevMeals.filter((meal) => meal.id !== mealId));
+    })
   };
 
   const handleUpdateMeal = (updatedMeal: Meal): void => {

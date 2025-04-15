@@ -56,6 +56,14 @@ export const fetchMealPlans = async (): Promise<MealPlanResponse> => {
             mealPlanId: selectedMealPlanId,
           });
     } catch (error) {
-        console.error("Error  adding meal:", error);
+        console.error("Error adding meal:", error);
+    }
+  }
+
+  export const deleteMeal = async(mealId : string) : Promise<void> => {
+    try {
+        await axios.delete<Meal>(`/api/meals/${mealId}`);
+    } catch (error) {
+        console.error("Error deleting meal:", error);
     }
   }
