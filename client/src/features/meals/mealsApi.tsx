@@ -48,3 +48,14 @@ export const fetchMealPlans = async (): Promise<MealPlanResponse> => {
         }
     }
   }
+
+  export const addMeal = async(meal : Meal, selectedMealPlanId : string) : Promise<void> => {
+    try {
+        await axios.post<Meal>("/api/meals", {
+            meal: meal,
+            mealPlanId: selectedMealPlanId,
+          });
+    } catch (error) {
+        console.error("Error  adding meal:", error);
+    }
+  }

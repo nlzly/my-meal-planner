@@ -245,8 +245,8 @@ func (h *Handler) createMeal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		models.MealRequest
-		MealPlanID string `json:"mealPlanId"`
+		models.MealRequest `json:"meal"`
+		MealPlanID         string `json:"mealPlanId"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

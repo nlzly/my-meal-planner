@@ -263,7 +263,7 @@ const MealPlannerContainer: React.FC<MealPlannerContainerProps> = ({
             initialDay={selectedDay}
             initialMealType={selectedMealType}
             mealToEdit={mealToEdit} // Pass local edit state
-            // selectedMealPlanId={selectedMealPlanId} // Removed prop - AddMealForm doesn't expect it
+            selectedMealPlanId={selectedMealPlanId} // Removed prop - AddMealForm doesn't expect it
           />
         </Modal>
 

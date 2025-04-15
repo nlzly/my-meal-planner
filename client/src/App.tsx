@@ -54,6 +54,7 @@ function App() {
         if(response.status == 200) {
           setMealPlans(response.data)
           setStatus("")
+          setSelectedMealPlanId(response.data[0].id)
         } else {
           setMealPlans([])
           setStatus(response.error)
