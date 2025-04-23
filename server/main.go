@@ -1,11 +1,14 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 
@@ -20,7 +23,22 @@ func main() {
 		log.Println("Error loading .env file:", err)
 		// Continue anyway, as env vars might be set directly
 	}
+	//open db connection
+	connStr := os.Getenv("DATABASE_URL")
+	dbConn, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatalf("failed to connect to db: %v", err)
+	}
+	defer dbConn.Close()
 
+	//test db connection
+	var result int
+	err = dbConn.QueryRow("SELECT 1").Scan(&result)
+	if err != nil {
+		log.Fatalf("query failed: %v", err)
+	}
+
+	fmt.Println("Connection successful, result:", result)
 	// Get Google OAuth credentials from environment
 	clientID := os.Getenv("GOOGLE_CLIENT_ID")
 	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
