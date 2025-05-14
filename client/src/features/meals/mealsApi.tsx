@@ -67,3 +67,17 @@ export const fetchMealPlans = async (): Promise<MealPlanResponse> => {
         console.error("Error deleting meal:", error);
     }
   }
+
+  export const updateMeal = async(meal : Meal) : Promise<void> => {
+    try {
+        
+        await api.put<Meal>(`/api/meals/${meal.id}`, {
+            name:  meal.name,
+            description : meal.description,
+            mealType: meal.mealType,
+            day: meal.day
+          });
+    } catch (error) {
+        console.error("Error adding meal:", error);
+    }
+  }
