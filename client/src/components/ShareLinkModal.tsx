@@ -33,7 +33,7 @@ const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
         expiresIn,
       });
       
-      setShareLink(response.data.shareLink);
+      setShareLink(response.data.code);
     } catch (err: any) {
       setError(err.response?.data || 'Failed to generate share link');
     } finally {
@@ -53,7 +53,7 @@ const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="share-link-modal">
         <h2>Share Meal Plan</h2>
-        <p>Generate a link to share "{mealPlanName}" with others</p>
+        <p>Generate a code to share "{mealPlanName}" with others</p>
         
         {error && <div className="error-message">{error}</div>}
         
@@ -104,7 +104,7 @@ const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
           </>
         ) : (
           <div className="share-link-container">
-            <p>Share this link with others to give them access to your meal plan:</p>
+            <p>Share this code with others to give them access to your meal plan:</p>
             <div className="share-link-box">
               <input 
                 type="text" 
@@ -121,7 +121,7 @@ const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
               </button>
             </div>
             <p className="share-link-note">
-              Anyone with this link can join your meal plan with {role} access.
+              Anyone with this code can join your meal plan.
             </p>
             <div className="form-buttons">
               <button 
@@ -136,6 +136,9 @@ const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
               >
                 Generate New Link
               </button>
+            </div>
+            <div>
+
             </div>
           </div>
         )}

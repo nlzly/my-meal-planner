@@ -21,7 +21,7 @@ function App() {
   const [newPlanName, setNewPlanName] = useState("");
   const [newPlanDescription, setNewPlanDescription] = useState("");
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showJoinModal, setShowJoinModal] = useState(true);
+  const [showJoinModal, setShowJoinModal] = useState(false);
 
   useEffect(() => {
     // Check URL for token parameter and return URL
