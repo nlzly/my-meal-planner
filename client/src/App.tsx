@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import axios from "axios";
 // import * as localMealService from "./services/localMealService";
 import LoginButton from "./components/LoginButton";
-import JoinMealPlan from "./components/JoinMealPlan";
 import MealPlannerContainer from "./components/MealPlannerContainer"; // Import the new component
 import { MealPlan } from "./features/meals/types";
 import "./App.css";
@@ -22,6 +21,7 @@ function App() {
   const [newPlanName, setNewPlanName] = useState("");
   const [newPlanDescription, setNewPlanDescription] = useState("");
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(true);
 
   useEffect(() => {
     // Check URL for token parameter and return URL
@@ -115,15 +115,6 @@ function App() {
             </section>
           ) : (
             <Routes>
-              <Route 
-                path="/join" 
-                element={
-                  <JoinMealPlan 
-                    setSelectedMealPlanId={setSelectedMealPlanId} 
-                    refreshMealPlans={fetchMealPlans} 
-                  />
-                } 
-              />
               <Route
                 path="/"
                 element={
@@ -133,6 +124,7 @@ function App() {
                     mealPlans={mealPlans} // List of plans
                     setShowCreatePlanModal={setShowCreatePlanModal} // Show create modal
                     setShowShareModal={setShowShareModal} // Show share modal
+                    setShowJoinModal={setShowJoinModal}
                     showCreatePlanModal={showCreatePlanModal} // Create modal state
                     newPlanName={newPlanName} // Create modal state
                     setNewPlanName={setNewPlanName} // Create modal state
@@ -140,6 +132,7 @@ function App() {
                     setNewPlanDescription={setNewPlanDescription} // Create modal state
                     handleCreateMealPlan={handleCreateMealPlan} // Create plan handler
                     showShareModal={showShareModal} // Share modal state
+                    showJoinModal={showJoinModal}
                   />
                 }
               />

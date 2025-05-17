@@ -7,6 +7,7 @@ import MealGrid from "./MealGrid";
 import Modal from "./Modal";
 import ConfirmModal from "./ConfirmModal";
 import ShareLinkModal from './ShareLinkModal';
+import JoinMealPlanModal from './JoinMealPlanModal';
 
 const DAYS: Day[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const MEAL_TYPES: MealType[] = ["Breakfast", "Lunch", "Dinner"];
@@ -19,6 +20,7 @@ interface MealPlannerContainerProps {
   mealPlans: MealPlan[];
   setShowCreatePlanModal: (show: boolean) => void;
   setShowShareModal: (show: boolean) => void;
+  setShowJoinModal: (show: boolean) => void;
   showCreatePlanModal: boolean; // Keep modal state for creation here
   newPlanName: string;
   setNewPlanName: (name: string) => void;
@@ -26,6 +28,7 @@ interface MealPlannerContainerProps {
   setNewPlanDescription: (desc: string) => void;
   handleCreateMealPlan: () => void; // Keep creation logic in App
   showShareModal: boolean;
+  showJoinModal: boolean;
 }
 
 const MealPlannerContainer: React.FC<MealPlannerContainerProps> = ({
@@ -34,6 +37,7 @@ const MealPlannerContainer: React.FC<MealPlannerContainerProps> = ({
   mealPlans,
   setShowCreatePlanModal,
   setShowShareModal,
+  setShowJoinModal,
   showCreatePlanModal,
   newPlanName,
   setNewPlanName,
@@ -41,6 +45,7 @@ const MealPlannerContainer: React.FC<MealPlannerContainerProps> = ({
   setNewPlanDescription,
   handleCreateMealPlan,
   showShareModal,
+  showJoinModal,
 }) => {
   // State moved from App.tsx
   const [meals, setMeals] = useState<Meal[]>([]);
@@ -236,6 +241,9 @@ const MealPlannerContainer: React.FC<MealPlannerContainerProps> = ({
               Share Plan
             </button>
           )}
+          <button className="share-button" onClick={() => setShowJoinModal(true)}>
+            Join Meal Plan
+          </button>
           <button
             className="clear-button"
             onClick={handleClearMealPlanClick} // Use renamed handler
@@ -347,6 +355,10 @@ const MealPlannerContainer: React.FC<MealPlannerContainerProps> = ({
           mealPlanName={mealPlans.find(p => p.id === selectedMealPlanId)?.name || ''}
         />
       )}
+      <JoinMealPlanModal 
+        isOpen={showJoinModal}
+        onClose={() => setShowJoinModal(false)}
+      />
     </section>
   );
 };
