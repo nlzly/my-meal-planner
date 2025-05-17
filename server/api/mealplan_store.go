@@ -312,7 +312,7 @@ func (h *Handler) handleJoinMealPlan(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the share link information
-	shareLink, err := h.store.GetShareLink(req.Code)
+	shareLink, err := h.store.GetShareCode(req.Code)
 	if err != nil {
 		http.Error(w, "Invalid share code", http.StatusNotFound)
 		return

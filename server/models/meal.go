@@ -41,7 +41,7 @@ type MealPlanAccess struct {
 }
 
 // ShareLink represents a link that can be used to join a meal plan
-type ShareLink struct {
+type ShareCode struct {
 	ID         string    `json:"id"` // The unique code for the link
 	MealPlanID string    `json:"mealPlanId"`
 	CreatedBy  string    `json:"createdBy"` // User ID who created the link

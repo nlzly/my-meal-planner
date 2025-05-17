@@ -45,8 +45,8 @@ type Store interface {
 	CheckMealPlanOwnership(userID, mealPlanID string) (bool, error)
 
 	// Share link operations
-	CreateShareLink(link *models.ShareLink) error
-	GetShareLink(id string) (*models.ShareLink, error)
+	CreateShareCode(link *models.ShareCode) error
+	GetShareCode(id string) (*models.ShareCode, error)
 	DeleteShareLink(id string) error
 
 	// Meal operations
@@ -69,7 +69,7 @@ type MemoryStore struct {
 	meals          map[string]*models.Meal
 	mealPlans      map[string]*models.MealPlan
 	mealPlanAccess map[string]*models.MealPlanAccess
-	shareLinks     map[string]*models.ShareLink
+	shareCodes     map[string]*models.ShareCode
 	mutex          sync.RWMutex
 	oauthConfig    *oauth2.Config
 	jwtSecret      []byte
@@ -82,7 +82,7 @@ func NewMemoryStore(oauthConfig *oauth2.Config, jwtSecret []byte) *MemoryStore {
 		meals:          make(map[string]*models.Meal),
 		mealPlans:      make(map[string]*models.MealPlan),
 		mealPlanAccess: make(map[string]*models.MealPlanAccess),
-		shareLinks:     make(map[string]*models.ShareLink),
+		shareCodes:     make(map[string]*models.ShareCode),
 		oauthConfig:    oauthConfig,
 		jwtSecret:      jwtSecret,
 	}
@@ -403,27 +403,27 @@ func (s *MemoryStore) GetUserByEmail(email string) (*models.User, error) {
 }
 
 // CreateShareLink creates a new share link
-func (s *MemoryStore) CreateShareLink(link *models.ShareLink) error {
+func (s *MemoryStore) CreateShareCode(code *models.ShareCode) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	if link.ID == "" {
-		link.ID = s.generateID()
+	if code.ID == "" {
+		code.ID = s.generateID()
 	}
-	s.shareLinks[link.ID] = link
+	s.shareCodes[code.ID] = code
 	return nil
 }
 
 // GetShareLink retrieves a share link by ID
-func (s *MemoryStore) GetShareLink(id string) (*models.ShareLink, error) {
+func (s *MemoryStore) GetShareCode(id string) (*models.ShareCode, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	link, exists := s.shareLinks[id]
+	code, exists := s.shareCodes[id]
 	if !exists {
-		return nil, errors.New("share link not found")
+		return nil, errors.New("share code not found")
 	}
-	return link, nil
+	return code, nil
 }
 
 // DeleteShareLink removes a share link from the store
@@ -431,10 +431,10 @@ func (s *MemoryStore) DeleteShareLink(id string) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	if _, exists := s.shareLinks[id]; !exists {
-		return errors.New("share link not found")
+	if _, exists := s.shareCodes[id]; !exists {
+		return errors.New("share code not found")
 	}
 
-	delete(s.shareLinks, id)
+	delete(s.shareCodes, id)
 	return nil
 }

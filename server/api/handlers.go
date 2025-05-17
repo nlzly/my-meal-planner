@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -142,14 +141,14 @@ func (h *Handler) handleGenerateShareLink(w http.ResponseWriter, r *http.Request
 	}
 
 	// Generate a unique share code
-	shareCode := uuid.New().String()
+	code := uuid.New().String()
 
 	// Calculate expiration time
 	expiresAt := time.Now().Add(time.Duration(req.ExpiresIn) * time.Hour)
 
 	// Create share link information
-	shareLink := &models.ShareLink{
-		ID:         shareCode,
+	shareCode := &models.ShareCode{
+		ID:         code,
 		MealPlanID: req.MealPlanID,
 		CreatedBy:  claims.UserID,
 		Role:       req.Role,
@@ -157,19 +156,14 @@ func (h *Handler) handleGenerateShareLink(w http.ResponseWriter, r *http.Request
 		CreatedAt:  time.Now(),
 	}
 
-	// Store the share link
-	if err := h.store.CreateShareLink(shareLink); err != nil {
-		http.Error(w, "Failed to create share link", http.StatusInternalServerError)
+	// Store the share code
+	if err := h.store.CreateShareCode(shareCode); err != nil {
+		http.Error(w, "Failed to create share code", http.StatusInternalServerError)
 		return
 	}
 
-	// Return the share link
-	shareURL := fmt.Sprintf("%s/#/join?code=%s", "http://localhost:5173", shareCode)
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
-		"shareLink": shareURL,
-		"code":      shareCode,
-		"expiresAt": expiresAt.Format(time.RFC3339),
+		"code": code,
 	})
 }
