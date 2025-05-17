@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'; // Added useState, useEffect
 import { Meal, Day, MealType, MealPlan } from "../features/meals/types";
 // import * as localMealService from "../services/localMealService"; // Added localMealService
-import { deleteMeal, fetchMeals } from "../features/meals/mealsApi"; // Added fetchMeals
+import { addMeal, deleteMeal, fetchMeals, updateMeal } from "../features/meals/mealsApi"; // Added fetchMeals
 import AddMealForm from "./AddMealForm";
 import MealGrid from "./MealGrid";
 import Modal from "./Modal";
@@ -120,6 +120,7 @@ const MealPlannerContainer: React.FC<MealPlannerContainerProps> = ({
     setIsModalOpen(true);
     setSelectedDay(updatedMeal.day as Day);
     setSelectedMealType(updatedMeal.mealType as MealType);
+    updateMeal(updatedMeal)
   };
 
   const handleMoveMeal = (mealId: string, newDay: Day, newMealType: MealType): void => {
@@ -135,6 +136,7 @@ const MealPlannerContainer: React.FC<MealPlannerContainerProps> = ({
       setMeals(prevMeals =>
         prevMeals.map(m => m.id === mealId ? updatedMeal : m)
       );
+      updateMeal(updatedMeal)
     }
   };
 
@@ -162,6 +164,7 @@ const MealPlannerContainer: React.FC<MealPlannerContainerProps> = ({
     // localMealService.addMeal(tempNewMeal); // Example if using local service
     setMeals(prevMeals => [...prevMeals, tempNewMeal]);
     // Ideally, replace tempNewMeal with the actual meal from backend response later
+    addMeal(tempNewMeal, selectedMealPlanId)
   };
 
   const getMealsForSlot = (day: Day, mealType: MealType): Meal[] => {
