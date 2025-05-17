@@ -108,8 +108,8 @@ func main() {
 func enableCORS(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		allowedOrigins := map[string]bool{
-			"http://localhost:5173":                            true,
-			"https://front-end-production-8eb0.up.railway.app": true,
+			"http://localhost:5173":                  true,
+			"https://my-meal-planner.up.railway.app": true,
 		}
 		origin := r.Header.Get("Origin")
 		// Set CORS headers
